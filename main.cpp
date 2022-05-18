@@ -16,7 +16,7 @@ struct ClientOptions {
         HelpException(const std::string &desctiption) : invalid_argument(desctiption) { }
 
         const char * what () const throw () {
-            return "C++ Exception";
+            return "Display help message";
         }
     };
 
@@ -34,7 +34,7 @@ struct ClientOptions {
         po::notify(programVariables);
 
         if (programVariables.count("help"))
-            throw new HelpException("Asked for help message");
+            throw HelpException("Asked for help message");
 
         if (programVariables.count("port")) {
             std::cerr << "Port number " << programVariables["port"].as<int>() << std::endl;
@@ -43,7 +43,19 @@ struct ClientOptions {
 };
 
 int main(int argc, char *argv[]) {
-    ClientOptions client {argc, argv};
+    try {
+        ClientOptions client {argc, argv};
+    }
+    catch (ClientOptions::HelpException &exception) {
+        std::cout << "This is Bomberman game client.\n"
+                     "Flags:\n"
+                     "    -d, --display-address <(nazwa hosta):(port) lub (IPv4):(port) lub (IPv6):(port)>\n"
+                     "    -h, --help                                 Print help information\n"
+                     "    -n, --player-name <String>\n"
+                     "    -p, --port <u16>\n"
+                     "    -s, --server-address <(nazwa hosta):(port) lub (IPv4):(port) lub (IPv6):(port)>\n";
+    }
+
 
     std::cout << "Hello, World!" << std::endl;
 

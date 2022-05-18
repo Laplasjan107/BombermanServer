@@ -57,21 +57,19 @@ public:
     ClientOptions(int argumentsCount, char *argumentsTable[]) {
         po::options_description description("Options parser");
         description.add_options()
-                ("display-address,d", po::value<std::string>(), "Port number")
+                ("display-address,d", po::value<std::string>()->required(), "Port number")
                 ("help,h", "Help request")
-                ("player-name,n", po::value<std::string>(), "Player name")
-                ("port,p", po::value<uint16_t>(), "Port number")
-                ("server-address,s", po::value<std::string>(), "Server address");
+                ("player-name,n", po::value<std::string>()->required(), "Player name")
+                ("port,p", po::value<uint16_t>()->required(), "Port number")
+                ("server-address,s", po::value<std::string>()->required(), "Server address");
 
         po::variables_map programVariables;
         po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
-        po::notify(programVariables);
 
         if (programVariables.count("help"))
             throw HelpException("Asked for help message");
 
-        if (!areAllMandatoryFlagsSet(programVariables))
-            throw std::invalid_argument("Flags: display-address, player-name, port, server-address are mandatory");
+        po::notify(programVariables);
 
         displayAddress  = programVariables["display-address"].as<std::string>();
         serverAddress   = programVariables["server-address"].as<std::string>();
@@ -94,7 +92,7 @@ int main(int argc, char *argv[]) {
                      "    -s, --server-address (Required)\n";
     }
     catch (std::exception &exception) {
-        std::cerr << exception.what();
+        std::cerr << exception.what() << std::endl;
     }
 
     return 0;

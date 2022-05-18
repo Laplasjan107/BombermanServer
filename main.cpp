@@ -8,11 +8,43 @@
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
-struct ClientOptions {
-    std::string clientName;
-    uint16_t port = 0;
-    std::string serverAddress;
-    std::string displayAddress;
+enum ClientMessageType {
+    Join            = 0,
+    PlaceBomb       = 1,
+    PlaceBlock      = 2,
+    Move            = 3,
+};
+
+enum Direction {
+    Up              = 0,
+    Right           = 1,
+    Down            = 2,
+    Left            = 3,
+};
+
+class IMessage {
+public:
+    virtual ~IMessage() {}
+};
+
+class JoinMessage : IMessage {
+public:
+    JoinMessage() {
+
+    }
+};
+
+class ClientOptions {
+    static bool areAllMandatoryFlagsSet(po::variables_map &programVariables) {
+        return programVariables.count("display-address") && programVariables.count("player-name") &&
+                programVariables.count("port") && programVariables.count("server-address");
+    }
+
+public:
+    std::string     playerName;
+    uint16_t        port;
+    std::string     serverAddress;
+    std::string     displayAddress;
 
     struct HelpException : public std::invalid_argument {
         explicit HelpException (const std::string &description) : invalid_argument(description) { }
@@ -26,8 +58,8 @@ struct ClientOptions {
         po::options_description description("Options parser");
         description.add_options()
                 ("display-address,d", po::value<std::string>(), "Port number")
-                ("help,h", "Display this help message")
-                ("player-name,n", "Display this help message")
+                ("help,h", "Help request")
+                ("player-name,n", po::value<std::string>(), "Player name")
                 ("port,p", po::value<uint16_t>(), "Port number")
                 ("server-address,s", po::value<std::string>(), "Server address");
 
@@ -38,9 +70,13 @@ struct ClientOptions {
         if (programVariables.count("help"))
             throw HelpException("Asked for help message");
 
-        if (programVariables.count("port")) {
-            std::cerr << "Port number " << programVariables["port"].as<uint16_t>() << std::endl;
-        }
+        if (!areAllMandatoryFlagsSet(programVariables))
+            throw std::invalid_argument("Flags: display-address, player-name, port, server-address are mandatory");
+
+        displayAddress  = programVariables["display-address"].as<std::string>();
+        serverAddress   = programVariables["server-address"].as<std::string>();
+        playerName      = programVariables["player-name"].as<std::string>();
+        port            = programVariables["port"].as<uint16_t>();
     }
 };
 
@@ -56,6 +92,9 @@ int main(int argc, char *argv[]) {
                      "    -n, --player-name (Required)\n"
                      "    -p, --port (Required)\n"
                      "    -s, --server-address (Required)\n";
+    }
+    catch (std::exception &exception) {
+        std::cerr << exception.what();
     }
 
     return 0;

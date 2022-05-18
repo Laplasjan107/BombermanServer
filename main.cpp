@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <exception>
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
 
@@ -10,6 +11,14 @@ struct ClientOptions {
     uint16_t port;
     std::string serverAddress;
     std::string displayAddress;
+
+    struct HelpException : public std::invalid_argument {
+        HelpException(const std::string &desctiption) : invalid_argument(desctiption) { }
+
+        const char * what () const throw () {
+            return "C++ Exception";
+        }
+    };
 
     ClientOptions(int argumentsCount, char *argumentsTable[]) {
         po::options_description description("Options parser");
@@ -24,7 +33,10 @@ struct ClientOptions {
         po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
         po::notify(programVariables);
 
-        if (programVariables.count("port")){
+        if (programVariables.count("help"))
+            throw new HelpException("Asked for help message");
+
+        if (programVariables.count("port")) {
             std::cerr << "Port number " << programVariables["port"].as<int>() << std::endl;
         }
     }

@@ -3,20 +3,13 @@
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 
-char helpMessage[] = "This is Bomberman game client.\n"
+static const constexpr char helpMessage[] = "This is Bomberman game client.\n"
                      "Flags:\n"
                      "    -h, --help\n"
                      "    -d, --display-address (Required)\n"
                      "    -n, --player-name (Required)\n"
                      "    -p, --port (Required)\n"
                      "    -s, --server-address (Required)";
-
-class JoinMessage : IMessage {
-public:
-    JoinMessage() {
-
-    }
-};
 
 struct HelloMessage : IMessage {
 
@@ -77,9 +70,36 @@ public:
     }
 };
 
+std::string make_daytime_string()
+{
+    using namespace std; // For time_t, time and ctime;
+    time_t now = time(0);
+    return ctime(&now);
+}
+
 int main(int argc, char *argv[]) {
     try {
         ClientOptions client {argc, argv};
+
+        boost::asio::io_context io_context;
+        tcp::resolver resolver(io_context);
+        tcp::resolver::results_type endpoints = resolver.resolve("students.mimuw.edu.pl:", "daytime");
+        tcp::socket socket(io_context);
+        boost::asio::connect(socket, endpoints);
+        for (;;)
+        {
+            boost::array<char, 128> buf {};
+            boost::system::error_code error;
+
+            auto len = socket.read_some(boost::asio::buffer(buf), error);
+            if (error == boost::asio::error::eof)
+                break; // Connection closed cleanly by peer.
+            else if (error)
+                throw boost::system::system_error(error); // Some other error.
+
+            std::cout.write(buf.data(), (std::streamsize) len);
+        }
+
     }
     catch (ClientOptions::HelpException &exception) {
         std::cout << helpMessage << std::endl;

@@ -12,9 +12,9 @@
 #include <boost/array.hpp>
 #include <boost/program_options.hpp>
 
-#include "ClientMessageType.h"
 #include "Direction.h"
-#include "EventType.h"
-#include "IMessage.h"
+#include "messages/EventType.h"
+#include "messages/IMessage.h"
+#include "messages/server-client/ClientMessageType.h"
 
 #endif //BOMBERMANSERVER_CLIENT_H

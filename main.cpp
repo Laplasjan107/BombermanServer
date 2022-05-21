@@ -66,17 +66,25 @@ int main(int argc, char *argv[]) {
             m[0] = 0; m[1] = 2;
             boost::asio::write(socket, boost::asio::buffer(m, 4));
 
-            auto len = socket.read_some(boost::asio::buffer(buf), error);
-            if (error == boost::asio::error::eof)
-                break; // Connection closed cleanly by peer.
-            else if (error) {
-                throw boost::system::system_error(error); // Some other error.
+            ServerMessageType messageType;
+            boost::asio::read(socket, boost::asio::buffer(&messageType, sizeof(messageType)));
+            std::cout << "New message\n";
+            if (messageType == ServerMessageType::Hello) {
+                auto len = socket.read_some(boost::asio::buffer(buf), error);
+                if (error == boost::asio::error::eof)
+                    break; // Connection closed cleanly by peer.
+                else if (error) {
+                    throw boost::system::system_error(error); // Some other error.
+                }
+                for (int i = 0; i < len; ++i) {
+                    std::cout << buf[i] << ' ';
+                }
+            }
+            else {
+                auto hello = HelloMessage(socket);
+                hello.print();
             }
 
-            std::cout << "New message\n";
-            for (int i = 0; i < len; ++i) {
-                std::cout << buf[i] << ' ';
-            }
             std::cout << '\n';
 
             //std::cout.write(buf.data(), (std::streamsize) len);

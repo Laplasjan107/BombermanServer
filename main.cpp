@@ -62,6 +62,10 @@ int main(int argc, char *argv[]) {
             boost::array<char, 128> buf {};
             boost::system::error_code error;
 
+            std::string m = "xxaa";
+            m[0] = 0; m[1] = 2;
+            boost::asio::write(socket, boost::asio::buffer(m, 4));
+
             auto len = socket.read_some(boost::asio::buffer(buf), error);
             if (error == boost::asio::error::eof)
                 break; // Connection closed cleanly by peer.

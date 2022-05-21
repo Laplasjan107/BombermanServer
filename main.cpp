@@ -2,6 +2,7 @@
 
 namespace po = boost::program_options;
 using boost::asio::ip::tcp;
+using namespace bomberman;
 
 static const constexpr char helpMessage[] = "This is Bomberman game client.\n"
                      "Flags:\n"
@@ -69,7 +70,24 @@ int main(int argc, char *argv[]) {
             ServerMessageType messageType;
             boost::asio::read(socket, boost::asio::buffer(&messageType, sizeof(messageType)));
             std::cout << "New message\n";
-            if (messageType == ServerMessageType::Hello) {
+            switch (messageType) {
+                case ServerMessageType::Hello:
+                {
+                    auto hello = HelloMessage(socket);
+                    hello.print();
+                }
+                    break;
+                case ServerMessageType::AcceptedPlayer:
+                    break;
+                case ServerMessageType::GameStarted:
+                    break;
+                case ServerMessageType::Turn:
+                    break;
+                case ServerMessageType::GameEnded:
+                    break;
+            }
+
+            /* if (messageType == ServerMessageType::Hello) {
                 auto len = socket.read_some(boost::asio::buffer(buf), error);
                 if (error == boost::asio::error::eof)
                     break; // Connection closed cleanly by peer.
@@ -81,13 +99,11 @@ int main(int argc, char *argv[]) {
                 }
             }
             else {
-                auto hello = HelloMessage(socket);
-                hello.print();
+                //auto hello = HelloMessage(socket);
+                //hello.print();
             }
 
-            std::cout << '\n';
-
-            //std::cout.write(buf.data(), (std::streamsize) len);
+            std::cout << '\n'; */
         }
 
     }

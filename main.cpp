@@ -11,26 +11,6 @@ static const constexpr char helpMessage[] = "This is Bomberman game client.\n"
                      "    -p, --port (Required)\n"
                      "    -s, --server-address (Required)";
 
-struct HelloMessage : IMessage {
-
-};
-
-struct AcceptedPlayerMessage : IMessage {
-
-};
-
-struct GameStartedMessage : IMessage {
-
-};
-
-struct TurnMessage : IMessage {
-
-};
-
-struct GameEndedMessage : IMessage {
-
-};
-
 class ClientOptions {
 public:
     std::string     playerName;
@@ -57,12 +37,10 @@ public:
 
         po::variables_map programVariables;
         po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
-
         if (programVariables.count("help"))
             throw HelpException("Asked for help message");
 
         po::notify(programVariables);
-
         displayAddress  = programVariables["display-address"].as<std::string>();
         serverAddress   = programVariables["server-address"].as<std::string>();
         playerName      = programVariables["player-name"].as<std::string>();
@@ -70,20 +48,13 @@ public:
     }
 };
 
-std::string make_daytime_string()
-{
-    using namespace std; // For time_t, time and ctime;
-    time_t now = time(0);
-    return ctime(&now);
-}
-
 int main(int argc, char *argv[]) {
     try {
         ClientOptions client {argc, argv};
 
         boost::asio::io_context io_context;
         tcp::resolver resolver(io_context);
-        tcp::resolver::results_type endpoints = resolver.resolve("students.mimuw.edu.pl:", "daytime");
+        tcp::resolver::results_type endpoints = resolver.resolve("localhost", "14002");
         tcp::socket socket(io_context);
         boost::asio::connect(socket, endpoints);
         for (;;)
@@ -94,10 +65,17 @@ int main(int argc, char *argv[]) {
             auto len = socket.read_some(boost::asio::buffer(buf), error);
             if (error == boost::asio::error::eof)
                 break; // Connection closed cleanly by peer.
-            else if (error)
+            else if (error) {
                 throw boost::system::system_error(error); // Some other error.
+            }
 
-            std::cout.write(buf.data(), (std::streamsize) len);
+            std::cout << "New message\n";
+            for (int i = 0; i < len; ++i) {
+                std::cout << buf[i] << ' ';
+            }
+            std::cout << '\n';
+
+            //std::cout.write(buf.data(), (std::streamsize) len);
         }
 
     }

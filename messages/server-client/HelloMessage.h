@@ -8,10 +8,11 @@
 #include <boost/endian/conversion.hpp>
 #include "messages/IMessage.h"
 #include "types.h"
+#include "common.h"
 
 namespace bomberman {
     class HelloMessage : IMessage {
-        string_lenght_t stringLength{};
+        string_length_t stringLength{};
         string serverName;
         players_count_t playersCount{};
         board_size_t sizeX{};
@@ -21,31 +22,41 @@ namespace bomberman {
         bomb_timer_t bombTimer{};
 
     public:
-        HelloMessage(socket &socket) {
+        HelloMessage(socket_t &socket) {
             using namespace boost::asio;
 
-            read(socket, buffer(&stringLength, sizeof(string_lenght_t)));
-            boost::endian::endian_reverse_inplace(stringLength);
+            //read(socket, buffer(&stringLength, sizeof(string_lenght_t)));
+            //boost::endian::endian_reverse_inplace(stringLength);
+            read_number_inplace(socket, stringLength);
+
             serverName = string(stringLength + 1, '\0');
             read(socket, buffer(serverName.data(), stringLength));
 
-            read(socket, buffer(&playersCount, sizeof(players_count_t)));
-            boost::endian::endian_reverse_inplace(playersCount);
 
-            read(socket, buffer(&sizeX, sizeof(board_size_t)));
-            boost::endian::endian_reverse_inplace(sizeX);
+            read_number_inplace(socket, playersCount);
+            //read(socket, buffer(&playersCount, sizeof(players_count_t)));
+            //boost::endian::endian_reverse_inplace(playersCount);
 
-            read(socket, buffer(&sizeY, sizeof(board_size_t)));
-            boost::endian::endian_reverse_inplace(sizeY);
 
-            read(socket, buffer(&gameLength, sizeof(game_length_t)));
-            boost::endian::endian_reverse_inplace(gameLength);
+            read_number_inplace(socket, sizeX);
+            //read(socket, buffer(&sizeX, sizeof(board_size_t)));
+            //boost::endian::endian_reverse_inplace(sizeX);
 
-            read(socket, buffer(&explosionRadius, sizeof(explosion_radius_t)));
-            boost::endian::endian_reverse_inplace(explosionRadius);
+            read_number_inplace(socket, sizeY);
+            //read(socket, buffer(&sizeY, sizeof(board_size_t)));
+            //boost::endian::endian_reverse_inplace(sizeY);
 
-            read(socket, buffer(&bombTimer, sizeof(bomb_timer_t)));
-            boost::endian::endian_reverse_inplace(bombTimer);
+            read_number_inplace(socket, gameLength);
+            //read(socket, buffer(&gameLength, sizeof(game_length_t)));
+            //boost::endian::endian_reverse_inplace(gameLength);
+
+            read_number_inplace(socket, explosionRadius);
+            //read(socket, buffer(&explosionRadius, sizeof(explosion_radius_t)));
+            //boost::endian::endian_reverse_inplace(explosionRadius);
+
+            read_number_inplace(socket, bombTimer);
+            //read(socket, buffer(&bombTimer, sizeof(bomb_timer_t)));
+            //boost::endian::endian_reverse_inplace(bombTimer);
         }
 
         void print() {

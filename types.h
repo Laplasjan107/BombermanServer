@@ -10,14 +10,14 @@
 #include <boost/asio.hpp>
 
 namespace bomberman {
-    using string_lenght_t = uint8_t;
+    using string_length_t = uint8_t;
     using players_count_t = uint8_t;
     using board_size_t = uint16_t;
     using game_length_t = uint16_t;
     using explosion_radius_t = uint16_t;
     using bomb_timer_t = uint16_t;
     using string = std::string;
-    using socket = boost::asio::ip::tcp::socket;
+    using socket_t = boost::asio::ip::tcp::socket;
 }
 
 #endif //BOMBERMANSERVER_TYPES_H

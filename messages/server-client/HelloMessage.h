@@ -12,7 +12,7 @@
 
 namespace bomberman {
     class HelloMessage : IMessage {
-        string_length_t stringLength{};
+        //string_length_t stringLength{};
         string serverName;
         players_count_t playersCount{};
         board_size_t sizeX{};
@@ -22,48 +22,26 @@ namespace bomberman {
         bomb_timer_t bombTimer{};
 
     public:
-        HelloMessage(socket_t &socket) {
+        explicit HelloMessage(socket_t &socket) {
             using namespace boost::asio;
+            //read_number_inplace(socket, stringLength);
 
-            //read(socket, buffer(&stringLength, sizeof(string_lenght_t)));
-            //boost::endian::endian_reverse_inplace(stringLength);
-            read_number_inplace(socket, stringLength);
-
-            serverName = string(stringLength + 1, '\0');
-            read(socket, buffer(serverName.data(), stringLength));
-
-
+            //serverName = string(stringLength + 1, '\0');
+            //read(socket, buffer(serverName.data(), stringLength));
+            serverName = read_string(socket);
             read_number_inplace(socket, playersCount);
-            //read(socket, buffer(&playersCount, sizeof(players_count_t)));
-            //boost::endian::endian_reverse_inplace(playersCount);
-
-
             read_number_inplace(socket, sizeX);
-            //read(socket, buffer(&sizeX, sizeof(board_size_t)));
-            //boost::endian::endian_reverse_inplace(sizeX);
-
             read_number_inplace(socket, sizeY);
-            //read(socket, buffer(&sizeY, sizeof(board_size_t)));
-            //boost::endian::endian_reverse_inplace(sizeY);
-
             read_number_inplace(socket, gameLength);
-            //read(socket, buffer(&gameLength, sizeof(game_length_t)));
-            //boost::endian::endian_reverse_inplace(gameLength);
-
             read_number_inplace(socket, explosionRadius);
-            //read(socket, buffer(&explosionRadius, sizeof(explosion_radius_t)));
-            //boost::endian::endian_reverse_inplace(explosionRadius);
-
             read_number_inplace(socket, bombTimer);
-            //read(socket, buffer(&bombTimer, sizeof(bomb_timer_t)));
-            //boost::endian::endian_reverse_inplace(bombTimer);
         }
 
         void print() {
             using namespace std;
 
             cout << "Hello message:\n";
-            cout << "Server name length: " << stringLength << '\n';
+            //cout << "Server name length: " << stringLength << '\n';
             cout << "Server name: " << serverName << '\n';
             cout << "Size x = " << sizeX << " size y = " << sizeY << '\n';
             cout << "Game length: " << gameLength << '\n';

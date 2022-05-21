@@ -12,8 +12,21 @@
 namespace bomberman {
     template<typename T>
     void read_number_inplace(socket_t &socket, T &number) {
-        boost::asio::read(socket, buffer(&number, sizeof(T)));
+        using namespace boost::asio;
+
+        read(socket, buffer(&number, sizeof(T)));
         boost::endian::endian_reverse_inplace(number);
+    }
+
+    string read_string(socket_t &socket) {
+        using namespace boost::asio;
+
+        string_length_t stringLength;
+        read_number_inplace(socket, stringLength);
+
+        auto readString = string(stringLength + 1, '\0');
+        read(socket, buffer(readString.data(), stringLength));
+        return readString;
     }
 }
 

@@ -11,14 +11,14 @@
 
 namespace bomberman {
     class HelloMessage : IMessage {
-        string_lenght_t stringLength;
+        string_lenght_t stringLength{};
         string serverName;
-        players_count_t playersCount;
-        board_size_t sizeX;
-        board_size_t sizeY;
-        game_length_t gameLength;
-        explosion_radius_t explosionRadius;
-        bomb_timer_t bombTimer;
+        players_count_t playersCount{};
+        board_size_t sizeX{};
+        board_size_t sizeY{};
+        game_length_t gameLength{};
+        explosion_radius_t explosionRadius{};
+        bomb_timer_t bombTimer{};
 
     public:
         HelloMessage(socket &socket) {
@@ -26,7 +26,7 @@ namespace bomberman {
 
             read(socket, buffer(&stringLength, sizeof(string_lenght_t)));
             boost::endian::endian_reverse_inplace(stringLength);
-            serverName = string('\0', stringLength + 1);
+            serverName = string(stringLength + 1, '\0');
             read(socket, buffer(serverName.data(), stringLength));
 
             read(socket, buffer(&playersCount, sizeof(players_count_t)));

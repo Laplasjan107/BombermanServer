@@ -20,25 +20,19 @@ namespace bomberman {
         bomb_timer_t bombTimer{};
 
     public:
-        explicit HelloMessage(socket_t &socket) {
-            serverName = read_string(socket);
-            read_number_inplace(socket, playersCount);
-            read_number_inplace(socket, sizeX);
-            read_number_inplace(socket, sizeY);
-            read_number_inplace(socket, gameLength);
-            read_number_inplace(socket, explosionRadius);
-            read_number_inplace(socket, bombTimer);
-        }
+        MapSettings map;
 
-        void print() {
+        explicit HelloMessage(socket_t &socket) : map(socket) { }
+
+        void print() const {
             using namespace std;
 
             cout << "Hello message:\n";
-            cout << "Server name: " << serverName << '\n';
-            cout << "Size x = " << sizeX << " size y = " << sizeY << '\n';
-            cout << "Game length: " << gameLength << '\n';
-            cout << "Explosion radius: " << explosionRadius << '\n';
-            cout << "Bomb timer: " << bombTimer << "\n\n";
+            cout << "Server name: " << map.serverName << '\n';
+            cout << "Size x = " << map.sizeX << " size y = " << map.sizeY << '\n';
+            cout << "Game length: " << map.gameLength << '\n';
+            cout << "Explosion radius: " << map.explosionRadius << '\n';
+            cout << "Bomb timer: " << map.bombTimer << "\n\n";
         }
     };
 }

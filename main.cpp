@@ -1,6 +1,6 @@
 #include "client.h"
 
-namespace po = boost::program_options;
+//namespace po = boost::program_options;
 using boost::asio::ip::tcp;
 using namespace bomberman;
 
@@ -28,6 +28,7 @@ public:
     };
 
     ClientOptions(int argumentsCount, char *argumentsTable[]) {
+/*
         po::options_description description("Options parser");
         description.add_options()
                 ("help,h", "Help request")
@@ -45,7 +46,7 @@ public:
         displayAddress  = programVariables["display-address"].as<std::string>();
         serverAddress   = programVariables["server-address"].as<std::string>();
         playerName      = programVariables["player-name"].as<std::string>();
-        port            = programVariables["port"].as<uint16_t>();
+        port            = programVariables["port"].as<uint16_t>(); */
     }
 };
 

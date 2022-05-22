@@ -9,6 +9,7 @@
 #include "common.h"
 #include "IMessage.h"
 #include "EventType.h"
+#include "MapSettings.h"
 #include <iostream>
 
 #endif //BOMBERMANSERVER_COMMON_INCLUDES_H

@@ -64,38 +64,38 @@ build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
 build edit_cache: phony CMakeFiles/edit_cache.util
 
 # =============================================================================
-# Object build statements for EXECUTABLE target BombermanServer
+# Object build statements for EXECUTABLE target BombermanClient
 
 
 #############################################
-# Order-only phony target for BombermanServer
+# Order-only phony target for BombermanClient
 
-build cmake_object_order_depends_target_BombermanServer: phony || CMakeFiles/BombermanServer.dir
+build cmake_object_order_depends_target_BombermanClient: phony || CMakeFiles/BombermanClient.dir
 
-build CMakeFiles/BombermanServer.dir/main.cpp.o: CXX_COMPILER__BombermanServer_Debug /Users/laplasjan/CLionProjects/BombermanServer/main.cpp || cmake_object_order_depends_target_BombermanServer
+build CMakeFiles/BombermanClient.dir/main.cpp.o: CXX_COMPILER__BombermanClient_Debug /Users/laplasjan/CLionProjects/BombermanServer/main.cpp || cmake_object_order_depends_target_BombermanClient
   DEFINES = -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_NO_LIB
-  DEP_FILE = CMakeFiles/BombermanServer.dir/main.cpp.o.d
+  DEP_FILE = CMakeFiles/BombermanClient.dir/main.cpp.o.d
   FLAGS = -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
   INCLUDES = -I/Users/laplasjan/CLionProjects/BombermanServer -isystem /opt/homebrew/include
-  OBJECT_DIR = CMakeFiles/BombermanServer.dir
-  OBJECT_FILE_DIR = CMakeFiles/BombermanServer.dir
+  OBJECT_DIR = CMakeFiles/BombermanClient.dir
+  OBJECT_FILE_DIR = CMakeFiles/BombermanClient.dir
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target BombermanServer
+# Link build statements for EXECUTABLE target BombermanClient
 
 
 #############################################
-# Link the executable BombermanServer
+# Link the executable BombermanClient
 
-build BombermanServer: CXX_EXECUTABLE_LINKER__BombermanServer_Debug CMakeFiles/BombermanServer.dir/main.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
+build BombermanClient: CXX_EXECUTABLE_LINKER__BombermanClient_Debug CMakeFiles/BombermanClient.dir/main.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
   FLAGS = -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
   LINK_LIBRARIES = /opt/homebrew/lib/libboost_program_options-mt.dylib
-  OBJECT_DIR = CMakeFiles/BombermanServer.dir
+  OBJECT_DIR = CMakeFiles/BombermanClient.dir
   POST_BUILD = :
   PRE_LINK = :
-  TARGET_FILE = BombermanServer
-  TARGET_PDB = BombermanServer.dbg
+  TARGET_FILE = BombermanClient
+  TARGET_PDB = BombermanClient.dbg
 
 # =============================================================================
 # Target aliases.
@@ -108,7 +108,7 @@ build BombermanServer: CXX_EXECUTABLE_LINKER__BombermanServer_Debug CMakeFiles/B
 #############################################
 # Folder: /Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug
 
-build all: phony BombermanServer
+build all: phony BombermanClient
 
 # =============================================================================
 # Built-in targets

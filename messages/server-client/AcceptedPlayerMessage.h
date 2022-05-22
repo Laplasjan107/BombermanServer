@@ -15,24 +15,21 @@
 namespace bomberman {
     class AcceptedPlayerMessage : IMessage {
     public:
+        player_id_t playerId;
         Player player;
 
         explicit AcceptedPlayerMessage(socket_t &socket) {
-            player_id_t playerId;
-            string playerName;
-
             read_number_inplace(socket, playerId);
-            playerName = read_string(socket);
-
-            player = Player(playerId, std::move(playerName));
+            player = Player(socket);
         }
 
         void print() const {
             using namespace std;
 
             cout << "Accepted player message:\n";
-            cout << "player id: " << (int) player.playerId << endl;
-            cout << "player name: " << player.playerName << endl;
+            cout << "player id: " << (int) playerId << endl;
+            player.print();
+            cout << endl;
         }
     };
 }

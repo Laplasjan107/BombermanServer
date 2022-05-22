@@ -27,7 +27,7 @@ namespace bomberman {
         void print() const {
             using namespace std;
 
-            cout << "PLAYER: id = " << playerId << " name = " << playerName << endl;
+            cout << "PLAYER: id = " << (int) playerId << " name = " << playerName << endl;
         }
     };
 

@@ -12,9 +12,18 @@
 namespace bomberman {
     template<typename T>
     void read_number_inplace(socket_t &socket, T &number) {
+        void handler(
+                // Result of operation.
+                const boost::system::error_code& error,
+                // Number of bytes copied into the buffers. If an error
+                // occurred, this will be the number of bytes successfully
+                // transferred prior to the error.
+                std::size_t bytes_transferred
+        );
+
         using namespace boost::asio;
 
-        read(socket, buffer(&number, sizeof(T)));
+        async_read(socket, buffer(&number, sizeof(T)), handler);
         boost::endian::endian_reverse_inplace(number);
     }
 

@@ -5,14 +5,12 @@
 #ifndef BOMBERMANSERVER_HELLOMESSAGE_H
 #define BOMBERMANSERVER_HELLOMESSAGE_H
 
-#include <boost/endian/conversion.hpp>
 #include "messages/IMessage.h"
 #include "types.h"
 #include "common.h"
 
 namespace bomberman {
     class HelloMessage : IMessage {
-        //string_length_t stringLength{};
         string serverName;
         players_count_t playersCount{};
         board_size_t sizeX{};
@@ -23,11 +21,6 @@ namespace bomberman {
 
     public:
         explicit HelloMessage(socket_t &socket) {
-            using namespace boost::asio;
-            //read_number_inplace(socket, stringLength);
-
-            //serverName = string(stringLength + 1, '\0');
-            //read(socket, buffer(serverName.data(), stringLength));
             serverName = read_string(socket);
             read_number_inplace(socket, playersCount);
             read_number_inplace(socket, sizeX);
@@ -41,7 +34,6 @@ namespace bomberman {
             using namespace std;
 
             cout << "Hello message:\n";
-            //cout << "Server name length: " << stringLength << '\n';
             cout << "Server name: " << serverName << '\n';
             cout << "Size x = " << sizeX << " size y = " << sizeY << '\n';
             cout << "Game length: " << gameLength << '\n';

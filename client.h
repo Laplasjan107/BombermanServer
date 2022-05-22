@@ -15,8 +15,6 @@
 #include "Direction.h"
 #include "messages/EventType.h"
 #include "messages/IMessage.h"
-#include "messages/server-client/ClientMessageType.h"
-#include "messages/server-client/ServerMessageType.h"
-#include "messages/server-client/HelloMessage.h"
+#include "messages/messages.h"
 
 #endif //BOMBERMANSERVER_CLIENT_H

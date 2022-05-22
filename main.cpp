@@ -78,6 +78,10 @@ int main(int argc, char *argv[]) {
                 }
                     break;
                 case ServerMessageType::AcceptedPlayer:
+                {
+                    auto accepted = AcceptedPlayerMessage(socket);
+                    accepted.print();
+                }
                     break;
                 case ServerMessageType::GameStarted:
                     break;

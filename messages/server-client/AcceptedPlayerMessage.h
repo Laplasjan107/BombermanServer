@@ -12,12 +12,12 @@
 
 namespace bomberman {
     class AcceptedPlayerMessage : IMessage {
-        string playerId;
+        player_id_t playerId;
         string playerName;
 
     public:
         explicit AcceptedPlayerMessage(socket_t &socket) {
-            playerId = read_string(socket);
+            read_number_inplace(socket, playerId);
             playerName = read_string(socket);
         }
 

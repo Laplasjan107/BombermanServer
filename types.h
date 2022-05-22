@@ -18,6 +18,7 @@ namespace bomberman {
     using bomb_timer_t = uint16_t;
     using string = std::string;
     using socket_t = boost::asio::ip::tcp::socket;
+    using player_id_t = uint8_t;
 }
 
 #endif //BOMBERMANSERVER_TYPES_H

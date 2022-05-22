@@ -12,22 +12,22 @@
 
 namespace bomberman {
     struct Player {
-        player_id_t playerId;
         string playerName;
+        string playerAddress;
 
         Player() = default;
 
         Player(socket_t &socket) {
-            read_number_inplace(socket, playerId);
             playerName = read_string(socket);
+            playerAddress = read_string(socket);
         }
 
-        Player(player_id_t id, string name) : playerId(id), playerName(std::move(name)) { }
+        Player(string name, string address) : playerName(std::move(name)), playerAddress(std::move(address)) { }
 
         void print() const {
             using namespace std;
 
-            cout << "PLAYER: id = " << (int) playerId << " name = " << playerName << endl;
+            cout << "PLAYER: name = " << playerName << " address = " << playerAddress << endl;
         }
     };
 

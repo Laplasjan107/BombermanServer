@@ -84,6 +84,10 @@ int main(int argc, char *argv[]) {
                 }
                     break;
                 case ServerMessageType::GameStarted:
+                {
+                    auto started = GameStartedMessage(socket);
+                    started.print();
+                }
                     break;
                 case ServerMessageType::Turn:
                     break;

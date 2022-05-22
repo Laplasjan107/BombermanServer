@@ -6,25 +6,33 @@
 #define BOMBERMANSERVER_ACCEPTEDPLAYERMESSAGE_H
 
 #include <iostream>
+#include <utility>
 #include "messages/IMessage.h"
 #include "common.h"
 #include "types.h"
+#include "Player.h"
 
 namespace bomberman {
     class AcceptedPlayerMessage : IMessage {
-        player_id_t playerId;
-        string playerName;
-
     public:
+        Player player;
+
         explicit AcceptedPlayerMessage(socket_t &socket) {
+            player_id_t playerId;
+            string playerName;
+
             read_number_inplace(socket, playerId);
             playerName = read_string(socket);
+
+            player = Player(playerId, std::move(playerName));
         }
 
-        void print() {
+        void print() const {
             using namespace std;
-            cout << "player id = " << playerId << endl;
-            cout << "player name = " << playerName << endl;
+
+            cout << "Accepted player message:\n";
+            cout << "player id: " << (int) player.playerId << endl;
+            cout << "player name: " << player.playerName << endl;
         }
     };
 }

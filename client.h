@@ -13,8 +13,6 @@
 #include <boost/program_options.hpp>
 
 #include "Direction.h"
-#include "messages/EventType.h"
-#include "messages/IMessage.h"
 #include "messages/messages.h"
 
 #endif //BOMBERMANSERVER_CLIENT_H

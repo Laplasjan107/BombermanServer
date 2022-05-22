@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <string>
 #include <boost/asio.hpp>
+#include <unordered_map>
 
 namespace bomberman {
     using string_length_t = uint8_t;
@@ -19,6 +20,7 @@ namespace bomberman {
     using string = std::string;
     using socket_t = boost::asio::ip::tcp::socket;
     using player_id_t = uint8_t;
+    using map_size_t = uint32_t;
 }
 
 #endif //BOMBERMANSERVER_TYPES_H

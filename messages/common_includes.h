@@ -8,7 +8,6 @@
 #include "types.h"
 #include "common.h"
 #include "IMessage.h"
-#include "EventType.h"
 #include "MapSettings.h"
 #include <iostream>
 

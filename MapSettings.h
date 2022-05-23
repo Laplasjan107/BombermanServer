@@ -18,6 +18,8 @@ namespace bomberman {
         explosion_radius_t explosionRadius{};
         bomb_timer_t bombTimer{};
 
+        MapSettings() = default;
+
         MapSettings(socket_t &socket) {
             serverName = read_string(socket);
             read_number_inplace(socket, playersCount);

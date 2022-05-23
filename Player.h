@@ -9,6 +9,7 @@
 #include <utility>
 #include "types.h"
 #include "common.h"
+#include "Position.h"
 
 namespace bomberman {
     struct Player {
@@ -17,7 +18,7 @@ namespace bomberman {
 
         Player() = default;
 
-        Player(socket_t &socket) {
+        explicit Player(socket_t &socket) {
             playerName = read_string(socket);
             playerAddress = read_string(socket);
         }
@@ -32,6 +33,7 @@ namespace bomberman {
     };
 
     using players_t = std::unordered_map<player_id_t, Player>;
+    using players_position_t = std::unordered_map<player_id_t, Position>;
 }
 
 #endif //BOMBERMANSERVER_PLAYER_H

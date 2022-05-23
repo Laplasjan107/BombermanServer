@@ -13,6 +13,7 @@
 //#include <boost/program_options.hpp>
 
 #include "Direction.h"
+#include "MapSettings.h"
 #include "messages/messages.h"
 
 #endif //BOMBERMANSERVER_CLIENT_H

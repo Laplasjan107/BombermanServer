@@ -1,0 +1,8 @@
+//
+// Created by Piotr Kamiński on 22/05/2022.
+//
+
+#ifndef BOMBERMANSERVER_PLAYERMOVED_H
+#define BOMBERMANSERVER_PLAYERMOVED_H
+
+#endif //BOMBERMANSERVER_PLAYERMOVED_H

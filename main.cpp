@@ -2,6 +2,7 @@
 
 //namespace po = boost::program_options;
 using boost::asio::ip::tcp;
+using boost::asio::ip::udp;
 using namespace bomberman;
 
 static const constexpr char helpMessage[] = "This is Bomberman game client.\n"
@@ -56,11 +57,45 @@ int main(int argc, char *argv[]) {
 
         boost::asio::io_context io_context;
         tcp::resolver resolver(io_context);
-        tcp::resolver::results_type endpoints = resolver.resolve("localhost", "14003");
+        tcp::resolver::results_type endpoints = resolver.resolve("localhost", "14006");
         tcp::socket socket(io_context);
         boost::asio::connect(socket, endpoints);
-        for (;;)
+
+        //udp::resolver res(io_context);
+        //auto endpt = res.resolve("localhost", "14008");
+        //boost::asio::ip::udp::endpoint destination(
+                //boost::asio::ip::address::from_string("127.0.0.1"), 14008);
+                //udp::socket udpSocket(io_context);
+        //udpSocket.open(boost::asio::ip::udp::v6());
+        udp::socket udpSocket(io_context, udp::endpoint(udp::v6(), 0));
+        udp::resolver res(io_context);
+        udp::resolver::query query(udp::v6(), "localhost", "12345");
+        udp::resolver::iterator iter = res.resolve(query);
+        udp::endpoint e = *iter;
+
+
+        //boost::asio::connect(udpSocket, endpt);
+        //auto endpt = boost::asio::ip::udp::endpoint{boost::asio::ip::make_address("127.0.0.1"), 14008};
+        //udpSocket.send_to(boost::asio::buffer(message), endpt);
+
+        for (int i = 0; i < 5; ++i)
         {
+            MapSettings settings;
+            settings.bombTimer = 1;
+            settings.explosionRadius = 1;
+            settings.gameLength = 5;
+            settings.serverName = "AHH";
+            settings.playersCount = 1;
+            settings.sizeX = 5;
+            settings.sizeY = 5;
+            players_t pl;
+            pl.insert({10, Player("aaa", "27.0.0.1:44152")});
+            LobbyMessage lobb {settings, pl};
+            lobb.sendAndClear(udpSocket, e);
+            GameStatus status{"SER", 4, 5, 5};
+            UDPMessage::loadGameStatus(status);
+            UDPMessage::sendAndClear(udpSocket, e);
+
             boost::array<char, 128> buf {};
             boost::system::error_code error;
 

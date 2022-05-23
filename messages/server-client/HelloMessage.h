@@ -10,29 +10,20 @@
 #include "common.h"
 
 namespace bomberman {
-    class HelloMessage : IMessage {
-        string serverName;
-        players_count_t playersCount{};
-        board_size_t sizeX{};
-        board_size_t sizeY{};
-        game_length_t gameLength{};
-        explosion_radius_t explosionRadius{};
-        bomb_timer_t bombTimer{};
+    struct HelloMessage : IMessage {
+        MapSettings mapSettings;
 
-    public:
-        MapSettings map;
-
-        explicit HelloMessage(socket_t &socket) : map(socket) { }
+        explicit HelloMessage(socket_t &socket) : mapSettings(socket) { }
 
         void print() const {
             using namespace std;
 
             cout << "Hello message:\n";
-            cout << "Server name: " << map.serverName << '\n';
-            cout << "Size x = " << map.sizeX << " size y = " << map.sizeY << '\n';
-            cout << "Game length: " << map.gameLength << '\n';
-            cout << "Explosion radius: " << map.explosionRadius << '\n';
-            cout << "Bomb timer: " << map.bombTimer << "\n\n";
+            cout << "Server name: " << mapSettings.serverName << '\n';
+            cout << "Size x = " << mapSettings.sizeX << " size y = " << mapSettings.sizeY << '\n';
+            cout << "Game length: " << mapSettings.gameLength << '\n';
+            cout << "Explosion radius: " << mapSettings.explosionRadius << '\n';
+            cout << "Bomb timer: " << mapSettings.bombTimer << "\n\n";
         }
     };
 }

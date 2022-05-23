@@ -6,6 +6,7 @@
 #define BOMBERMANSERVER_COMMON_H
 
 #include "types.h"
+#include "event/Event.h"
 #include <boost/endian/conversion.hpp>
 #include <boost/asio.hpp>
 

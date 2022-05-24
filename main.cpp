@@ -153,19 +153,19 @@ namespace bomberman {
         }
 
         void handleTurnMessage() {
-            std::cerr << "TURN MESSAGE: ";
+            std::cerr << "[debug] [Message] Turn message received.\n";
+
+            game->newTurn();
             game_length_t turnNumber;
             read_number_inplace(*serverSocket, turnNumber);
 
             list_size_t eventsNumber;
             read_number_inplace(*serverSocket, eventsNumber);
             game->turn = turnNumber;
-            game->clearExplosions();
             std::cerr << "turn number = " << turnNumber << "EvenentsNumber = " << eventsNumber << std::endl;
             for (list_size_t i = 0; i < eventsNumber; ++i) {
                 handleEvent();
             }
-            std::cerr << "TURN MESSAGE HANDELED\n";
         }
 
         void handleGameEndedMessage() {
@@ -209,7 +209,7 @@ namespace bomberman {
             context = std::make_unique<boost::asio::io_context>();
 
             tcp::resolver resolver(*context);
-            tcp::resolver::results_type endpoints = resolver.resolve("students.mimuw.edu.pl", "10015");
+            tcp::resolver::results_type endpoints = resolver.resolve("students.mimuw.edu.pl", "10410");
             serverSocket = std::make_unique<tcp::socket>(*context);
             boost::asio::connect(*serverSocket, endpoints);
 
@@ -246,6 +246,7 @@ int main(int argc, char *argv[]) {
     }
     catch (exception &exception) {
         cerr << exception.what() << endl;
+        return 1;
     }
 
     return 0;

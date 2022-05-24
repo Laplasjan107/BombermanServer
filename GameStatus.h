@@ -30,8 +30,10 @@ namespace bomberman {
         players_position_t positions;
         std::unordered_set<Position> blocks;
         std::unordered_map<bomb_id_t, Bomb> bombs;
-        std::vector<Position> explosions;
+        std::unordered_set<Position> explosions;
+        //std::vector<Position> explosions;
         std::unordered_map<player_id_t, score_t> scores;
+        std::unordered_set<player_id_t> destroyedPlayers;
 
     public:
         explicit GameStatus(const HelloMessage &hello) :
@@ -52,11 +54,17 @@ namespace bomberman {
             sizeX = hello.mapSettings.sizeX;
             sizeY = hello.mapSettings.sizeY;
             gameLength = hello.mapSettings.gameLength;
+            explosionRadius = hello.mapSettings.explosionRadius;
             turn = 0;
         }
 
-        void clearExplosions() {
-            explosions = std::vector<Position>{};
+        void newTurn() {
+            destroyedPlayers = std::unordered_set<player_id_t> {};
+            std::cerr << "EXPLOSION CLEARED " << explosions.size() << '\n';
+            explosions = std::unordered_set<Position>{};
+            for (auto &bomb: bombs) {
+                bomb.second.timer -= 1;
+            }
         }
 
         void newPlayer(const AcceptedPlayerMessage &accepted) {
@@ -73,10 +81,45 @@ namespace bomberman {
             bombs.insert({bombPlaced.bombId, Bomb {bombPlaced.position, bombTimer}});
         }
 
+        bool isInside(const Position &position) {
+            return (position.positionX < sizeX) && (position.positionY < sizeY) &&
+                    (position.positionX >= 0) && (position.positionY >= 0);
+        }
+
+        void renderExplosion(const Position &position) {
+            static const std::vector<Position> directions {Position {1, 0},
+                                                           Position {0, 1},
+                                                           Position {(board_size_t) -1, 0},
+                                                           Position {0, (board_size_t) -1}};
+
+            for (auto &versor: directions) {
+                std::cerr << "RENDERING EXPL: " << explosions.size() << "rad = " << explosionRadius << '\n';
+                for (explosion_radius_t i = 0; i <= explosionRadius; ++i) {
+                    Position currentPosition = position + versor * i;
+                    if (!isInside(currentPosition))
+                        break;
+
+                    std::cerr << "checking " << currentPosition <<'\n';
+                    explosions.insert(currentPosition);
+                    if (blocks.contains(currentPosition))
+                        break;
+                }
+            }
+        }
+
         void explodeBomb(const BombExplodedEvent &bombExplodedEvent) {
+            Position explosion = bombs[bombExplodedEvent.bombId].bombPosition;
+            renderExplosion(explosion);
             bombs.erase(bombExplodedEvent.bombId);
             for (auto block: bombExplodedEvent.blocksDestroyed) {
                 blocks.erase(block);
+            }
+
+            for (auto player: bombExplodedEvent.robotsDestroyed) {
+                if (!destroyedPlayers.contains(player)) {
+                    destroyedPlayers.insert(player);
+                    scores[player] += 1;
+                }
             }
         }
 
@@ -86,11 +129,12 @@ namespace bomberman {
 
         void endGame(const GameEndedMessage &gameEnded) {
             using namespace std;
+            std::cerr << "EXPLOSION CLEARED " << explosions.size() << '\n';
 
             running = false;
             blocks = unordered_set<Position>{};
             bombs = unordered_map<bomb_id_t, Bomb> {};
-            explosions = vector<Position> {};
+            explosions = unordered_set<Position> {};
             scores = unordered_map<player_id_t, score_t> {};
         }
 

@@ -8,12 +8,13 @@
 #include <cstdlib>
 #include <iostream>
 #include <boost/endian/conversion.hpp>
+#include <unordered_set>
 #include "Player.h"
 #include "Position.h"
-#include "GameStatus.h"
 #include "common.h"
 #include "types.h"
 #include "DrawMessageType.h"
+#include "Bomb.h"
 
 
 namespace bomberman {
@@ -21,6 +22,7 @@ namespace bomberman {
 
     class UDPMessage {
         static const constexpr size_t udpDatagramSize = 65507;
+    public:
         static uint8_t bufferUDP[udpDatagramSize];
         static size_t loaded;
 
@@ -72,6 +74,12 @@ namespace bomberman {
                 loadPosition(e);
         }
 
+        static void loadPositionsList(const std::unordered_set<Position> &positions) {
+            loadNumber((list_size_t) positions.size());
+            for (auto &e : positions)
+                loadPosition(e);
+        }
+
         static void loadBomb(const Bomb &bomb) {
             loadPosition(bomb.bombPosition);
             loadNumber(bomb.timer);
@@ -81,6 +89,12 @@ namespace bomberman {
             loadNumber((list_size_t) bombs.size());
             for (auto &e : bombs)
                 loadBomb(e);
+        }
+
+        static void loadBombsList(const std::unordered_map<bomb_id_t, Bomb> &bombs) {
+            loadNumber((list_size_t) bombs.size());
+            for (auto &e : bombs)
+                loadBomb(e.second);
         }
 
         static void loadPosition(const Position &position) {
@@ -100,7 +114,7 @@ namespace bomberman {
         static void clearBuffer() {
             loaded = 0;
         }
-
+/*
         static void loadGameStatus(const GameStatus &gameStatus) {
             clearBuffer();
             loadNumber(static_cast<uint8_t>(DrawMessageType::Game));
@@ -115,11 +129,11 @@ namespace bomberman {
             loadBombsList(gameStatus.bombs);
             loadPositionsList(gameStatus.explosions);
             loadScores(gameStatus.scores);
-        }
+        } */
 
         static void sendAndClear(udp::socket &socket, udp::endpoint& endpoint) {
             for (int i = 0; i < loaded; ++i) {
-                std::cout << (int) bufferUDP[i] << ' ';
+            //    std::cerr << (int) bufferUDP[i] << ' ';
             }
             std::cout << std::endl;
             socket.send_to(boost::asio::buffer(bufferUDP, loaded), endpoint);

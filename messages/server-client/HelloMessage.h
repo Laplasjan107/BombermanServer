@@ -18,12 +18,12 @@ namespace bomberman {
         void print() const {
             using namespace std;
 
-            cout << "Hello message:\n";
-            cout << "Server name: " << mapSettings.serverName << '\n';
-            cout << "Size x = " << mapSettings.sizeX << " size y = " << mapSettings.sizeY << '\n';
-            cout << "Game length: " << mapSettings.gameLength << '\n';
-            cout << "Explosion radius: " << mapSettings.explosionRadius << '\n';
-            cout << "Bomb timer: " << mapSettings.bombTimer << "\n\n";
+            cerr << "Hello message:\n";
+            cerr << "Server name: " << mapSettings.serverName << '\n';
+            cerr << "Size x = " << mapSettings.sizeX << " size y = " << mapSettings.sizeY << '\n';
+            cerr << "Game length: " << mapSettings.gameLength << '\n';
+            cerr << "Explosion radius: " << mapSettings.explosionRadius << '\n';
+            cerr << "Bomb timer: " << mapSettings.bombTimer << "\n\n";
         }
     };
 }

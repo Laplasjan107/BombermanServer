@@ -1,4 +1,18 @@
-#include "client.h"
+#include <iostream>
+#include <string>
+#include <exception>
+#include <boost/asio.hpp>
+#include <boost/array.hpp>
+#include <thread>
+//#include <boost/program_options.hpp>
+
+#include "ClientOptions.h"
+#include "Direction.h"
+#include "MapSettings.h"
+#include "UnexpectedMessageException.h"
+#include "messages/messages.h"
+#include "GameStatus.h"
+#include "event/events.h"
 
 //namespace po = boost::program_options;
 using boost::asio::ip::tcp;
@@ -13,149 +27,225 @@ static const constexpr char helpMessage[] = "This is Bomberman game client.\n"
                      "    -p, --port (Required)\n"
                      "    -s, --server-address (Required)";
 
-class ClientOptions {
-public:
-    std::string     playerName;
-    uint16_t        port;
-    std::string     serverAddress;
-    std::string     displayAddress;
+namespace bomberman {
+    class Client {
+        std::unique_ptr<boost::asio::io_context> context;
+        std::unique_ptr<tcp::socket> serverSocket;
+        std::unique_ptr<udp::socket> guiSocketWriter;
+        udp::endpoint guiWriteEndpoint;
+        std::unique_ptr<udp::socket> guiSocketReceiver;
+        std::unique_ptr<GameStatus> game;
 
-    struct HelpException : public std::invalid_argument {
-        explicit HelpException (const std::string &description) : invalid_argument(description) { }
+        [[noreturn]] void guiConnection() {
+            boost::array<char, 10> recv_buf{};
+            udp::endpoint remote_endpoint;
 
-        [[nodiscard]] const char *what () const noexcept override {
-            return "Help message requested";
+            while (true) {
+                auto r = guiSocketReceiver->receive_from(boost::asio::buffer(recv_buf), remote_endpoint);
+                std::cout << "FROM GUI\n";
+                for (int i = 0; i < r; ++i) {
+                    std::cout << (int) recv_buf[i] << ' ';
+                }
+                std::cout << std::endl;
+
+                bool valid = false;
+
+                if (recv_buf[0] == 0 && r == 1) {
+                    char place_bomb[1] = {1};
+                    boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, 1));
+                    valid = true;
+                }
+                else if (recv_buf[0] == 1 && r == 1) {
+                    char place_block[1] = {2};
+                    boost::asio::write(*serverSocket, boost::asio::buffer(place_block, 1));
+                    valid = true;
+                }
+                else if (recv_buf[0] == 2 && r == 2) {
+                    char move[2] = {3, 0};
+                    move[1] = recv_buf[1];
+                    boost::asio::write(*serverSocket, boost::asio::buffer(move, 2));
+                    valid = true;
+                }
+
+                std::cerr << "VALID = " << valid << " " << "RUNNING = " << game->running << '\n';
+
+                if (valid && !game->running) {
+                    boost::array<char, 6> m{0, 4, 'a', 'b', 'c', 'd'};
+                    std::cerr << "WRITING NAME TO BUFFER\n";
+                    boost::asio::write(*serverSocket, boost::asio::buffer(m));
+                }
+            }
+
+        }
+
+        void sendGameToGUI() {
+            game->writeToUDP();
+            UDPMessage::sendAndClear(*guiSocketWriter, guiWriteEndpoint);
+        }
+
+
+        void handleHelloMessage() {
+            std::cerr << "Hello message\n";
+            auto hello = HelloMessage(*serverSocket);
+            hello.print();
+            game->initializeGame(hello);
+        }
+
+        void handleAcceptedPlayerMessage() {
+            std::cerr << "Accepted player\n";
+            auto accepted = AcceptedPlayerMessage(*serverSocket);
+            game->newPlayer(accepted);
+        }
+
+        void handleGameStartedMessage() {
+            std::cerr << "Game started message\n";
+            auto started = GameStartedMessage(*serverSocket);
+            started.print();
+            game->startGame(started);
+        }
+
+        void handleBombPlacedEvent() {
+            std::cerr << "BOMB PLACED\n";
+            BombPlacedEvent bombPlaced {*serverSocket};
+            game->placeBomb(bombPlaced);
+        }
+
+        void handleBombExplodedEvent() {
+            std::cerr << "[debug] [Event] Bomb exploded.\n";
+            BombExplodedEvent bombExplodedEvent{*serverSocket};
+            game->explodeBomb(bombExplodedEvent);
+        }
+
+        void handlePlayerMovedEvent() {
+            std::cerr << "[debug] [Event] Player moved. ";
+            player_id_t playerId;
+            read_number_inplace(*serverSocket, playerId);
+            Position playerPosition{*serverSocket};
+            std::cerr << "Player id: " << (int) playerId << ", new position: " << playerPosition << '\n';
+            game->positions[playerId] = playerPosition;
+        }
+
+        void handleBlockPlacedEvent() {
+            std::cerr << "[debug] [Event] Block placed.\n";
+            Position blockPosition{*serverSocket};
+            game->placeBlock(blockPosition);
+        }
+
+        void handleEvent() {
+            message_header_t eventHeader;
+            read_number_inplace(*serverSocket, eventHeader);
+            switch (eventHeader) {
+                case EventType::BombPlaced:
+                    handleBombPlacedEvent();
+                    break;
+                case EventType::BombExploded:
+                    handleBombExplodedEvent();
+                    break;
+                case EventType::PlayerMoved:
+                    handlePlayerMovedEvent();
+                    break;
+                case EventType::BlockPlaced:
+                    handleBlockPlacedEvent();
+                    break;
+                default:
+                    throw UnexpectedMessageException();
+            }
+        }
+
+        void handleTurnMessage() {
+            std::cerr << "TURN MESSAGE: ";
+            game_length_t turnNumber;
+            read_number_inplace(*serverSocket, turnNumber);
+
+            list_size_t eventsNumber;
+            read_number_inplace(*serverSocket, eventsNumber);
+            game->turn = turnNumber;
+            game->clearExplosions();
+            std::cerr << "turn number = " << turnNumber << "EvenentsNumber = " << eventsNumber << std::endl;
+            for (list_size_t i = 0; i < eventsNumber; ++i) {
+                handleEvent();
+            }
+            std::cerr << "TURN MESSAGE HANDELED\n";
+        }
+
+        void handleGameEndedMessage() {
+            std::cerr << "[debug] [Message] Game ended.\n";
+            GameEndedMessage gameEnded{*serverSocket};
+            game->endGame(gameEnded);
+        }
+
+        void serverConnection() {
+            while (true) {
+                message_header_t messageType;
+                boost::asio::read(*serverSocket, boost::asio::buffer(&messageType, sizeof(messageType)));
+                std::cerr << "New message " << (int) messageType << std::endl;
+
+                switch (messageType) {
+                    case ServerMessageType::Hello:
+                        handleHelloMessage();
+                        break;
+                    case ServerMessageType::AcceptedPlayer:
+                        handleAcceptedPlayerMessage();
+                        break;
+                    case ServerMessageType::GameStarted:
+                        handleGameStartedMessage();
+                        break;
+                    case ServerMessageType::Turn:
+                        handleTurnMessage();
+                        break;
+                    case ServerMessageType::GameEnded:
+                        handleGameEndedMessage();
+                        break;
+                    default:
+                        throw UnexpectedMessageException();
+                }
+                sendGameToGUI();
+            }
+        }
+
+    public:
+        Client(ClientOptions &options) {
+            game = std::make_unique<GameStatus>();
+            context = std::make_unique<boost::asio::io_context>();
+
+            tcp::resolver resolver(*context);
+            tcp::resolver::results_type endpoints = resolver.resolve("students.mimuw.edu.pl", "10015");
+            serverSocket = std::make_unique<tcp::socket>(*context);
+            boost::asio::connect(*serverSocket, endpoints);
+
+            guiSocketWriter = std::make_unique<udp::socket>(*context, udp::endpoint(udp::v6(), 0));
+            udp::resolver res(*context);
+            udp::resolver::query query(udp::v6(), "localhost", "12345");
+            udp::resolver::iterator iter = res.resolve(query);
+            guiWriteEndpoint = *iter;
+
+            guiSocketReceiver = std::make_unique<udp::socket>(*context, udp::endpoint(udp::v6(), 14008));
+        }
+
+        void run() {
+            std::thread gui_thread(&Client::guiConnection, this);
+            std::thread server_thread(&Client::serverConnection, this);
+
+            gui_thread.join();
+            server_thread.join();
         }
     };
+}
 
-    ClientOptions(int argumentsCount, char *argumentsTable[]) {
-/*
-        po::options_description description("Options parser");
-        description.add_options()
-                ("help,h", "Help request")
-                ("display-address,d", po::value<std::string>()->required(), "Port number")
-                ("player-name,n", po::value<std::string>()->required(), "Player name")
-                ("port,p", po::value<uint16_t>()->required(), "Port number")
-                ("server-address,s", po::value<std::string>()->required(), "Server address");
-
-        po::variables_map programVariables;
-        po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
-        if (programVariables.count("help"))
-            throw HelpException("Asked for help message");
-
-        po::notify(programVariables);
-        displayAddress  = programVariables["display-address"].as<std::string>();
-        serverAddress   = programVariables["server-address"].as<std::string>();
-        playerName      = programVariables["player-name"].as<std::string>();
-        port            = programVariables["port"].as<uint16_t>(); */
-    }
-};
 
 int main(int argc, char *argv[]) {
+    using namespace std;
+
     try {
-        ClientOptions client {argc, argv};
-
-        boost::asio::io_context io_context;
-        tcp::resolver resolver(io_context);
-        tcp::resolver::results_type endpoints = resolver.resolve("localhost", "14006");
-        tcp::socket socket(io_context);
-        boost::asio::connect(socket, endpoints);
-
-        //udp::resolver res(io_context);
-        //auto endpt = res.resolve("localhost", "14008");
-        //boost::asio::ip::udp::endpoint destination(
-                //boost::asio::ip::address::from_string("127.0.0.1"), 14008);
-                //udp::socket udpSocket(io_context);
-        //udpSocket.open(boost::asio::ip::udp::v6());
-        udp::socket udpSocket(io_context, udp::endpoint(udp::v6(), 0));
-        udp::resolver res(io_context);
-        udp::resolver::query query(udp::v6(), "localhost", "12345");
-        udp::resolver::iterator iter = res.resolve(query);
-        udp::endpoint e = *iter;
-
-
-        //boost::asio::connect(udpSocket, endpt);
-        //auto endpt = boost::asio::ip::udp::endpoint{boost::asio::ip::make_address("127.0.0.1"), 14008};
-        //udpSocket.send_to(boost::asio::buffer(message), endpt);
-
-        for (int i = 0; i < 5; ++i)
-        {
-            MapSettings settings;
-            settings.bombTimer = 1;
-            settings.explosionRadius = 1;
-            settings.gameLength = 5;
-            settings.serverName = "AHH";
-            settings.playersCount = 1;
-            settings.sizeX = 5;
-            settings.sizeY = 5;
-            players_t pl;
-            pl.insert({10, Player("aaa", "27.0.0.1:44152")});
-            LobbyMessage lobb {settings, pl};
-            lobb.sendAndClear(udpSocket, e);
-            GameStatus status{"SER", 4, 5, 5};
-            UDPMessage::loadGameStatus(status);
-            UDPMessage::sendAndClear(udpSocket, e);
-
-            boost::array<char, 128> buf {};
-            boost::system::error_code error;
-
-            std::string m = "xxaa";
-            m[0] = 0; m[1] = 2;
-            boost::asio::write(socket, boost::asio::buffer(m, 4));
-
-            ServerMessageType messageType;
-            boost::asio::read(socket, boost::asio::buffer(&messageType, sizeof(messageType)));
-            std::cout << "New message\n";
-            switch (messageType) {
-                case ServerMessageType::Hello:
-                {
-                    auto hello = HelloMessage(socket);
-                    hello.print();
-                }
-                    break;
-                case ServerMessageType::AcceptedPlayer:
-                {
-                    auto accepted = AcceptedPlayerMessage(socket);
-                    accepted.print();
-                }
-                    break;
-                case ServerMessageType::GameStarted:
-                {
-                    auto started = GameStartedMessage(socket);
-                    started.print();
-                }
-                    break;
-                case ServerMessageType::Turn:
-                    break;
-                case ServerMessageType::GameEnded:
-                    break;
-            }
-
-            /* if (messageType == ServerMessageType::Hello) {
-                auto len = socket.read_some(boost::asio::buffer(buf), error);
-                if (error == boost::asio::error::eof)
-                    break; // Connection closed cleanly by peer.
-                else if (error) {
-                    throw boost::system::system_error(error); // Some other error.
-                }
-                for (int i = 0; i < len; ++i) {
-                    std::cout << buf[i] << ' ';
-                }
-            }
-            else {
-                //auto hello = HelloMessage(socket);
-                //hello.print();
-            }
-
-            std::cout << '\n'; */
-        }
-
+        ClientOptions options {argc, argv};
+        Client client {options};
+        client.run();
     }
     catch (ClientOptions::HelpException &exception) {
-        std::cout << helpMessage << std::endl;
+        cout << helpMessage << endl;
     }
-    catch (std::exception &exception) {
-        std::cerr << exception.what() << std::endl;
+    catch (exception &exception) {
+        cerr << exception.what() << endl;
     }
 
     return 0;

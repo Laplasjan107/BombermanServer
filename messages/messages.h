@@ -11,6 +11,7 @@
 #include "server-client/HelloMessage.h"
 #include "server-client/GameStartedMessage.h"
 #include "server-client/AcceptedPlayerMessage.h"
+#include "server-client/GameEndedMessage.h"
 #include "client-gui/LobbyMessage.h"
 
 #endif //BOMBERMANSERVER_MESSAGES_H

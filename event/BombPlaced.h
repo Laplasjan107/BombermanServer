@@ -11,13 +11,13 @@
 #include "Event.h"
 
 namespace bomberman {
-    struct BombPlaced : Event {
+    struct BombPlacedEvent : Event {
         bomb_id_t bombId;
         Position position;
 
-        BombPlaced(socket_t &socket) {
+        BombPlacedEvent(socket_t &socket) {
             read_number_inplace(socket, bombId);
-            position = Position(socket);
+            position = Position {socket};
         }
     };
 }

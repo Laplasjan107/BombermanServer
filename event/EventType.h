@@ -6,9 +6,10 @@
 #define BOMBERMANSERVER_EVENTTYPE_H
 
 #include <cstdlib>
+#include "types.h"
 
 namespace bomberman {
-    enum class EventType : uint8_t {
+    enum EventType : message_header_t {
         BombPlaced = 0,
         BombExploded = 1,
         PlayerMoved = 2,

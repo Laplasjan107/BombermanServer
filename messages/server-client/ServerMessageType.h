@@ -9,7 +9,7 @@
 #include <cstdlib>
 
 namespace bomberman {
-    enum class ServerMessageType : uint8_t {
+    enum ServerMessageType : message_header_t {
         Hello = 0,
         AcceptedPlayer = 1,
         GameStarted = 2,

@@ -17,6 +17,8 @@ namespace bomberman {
 
         read(socket, buffer(&number, sizeof(T)));
         boost::endian::endian_reverse_inplace(number);
+
+        //std::cout << (int) number << ' ';
     }
 
     string read_string(socket_t &socket) {
@@ -25,8 +27,9 @@ namespace bomberman {
         string_length_t stringLength;
         read_number_inplace(socket, stringLength);
 
-        auto readString = string(stringLength + 1, '\0');
+        auto readString = string(stringLength, '\0');
         read(socket, buffer(readString.data(), stringLength));
+        //std::cout << readString << ' ';
         return readString;
     }
 }

@@ -13,6 +13,7 @@
 namespace bomberman {
     using string = std::string;
 
+    using message_header_t = uint8_t;
     using string_length_t = uint8_t;
     using players_count_t = uint8_t;
     using board_size_t = uint16_t;

@@ -9,12 +9,17 @@
 #include "types.h"
 
 namespace bomberman {
-    class ClientOptions {
-    public:
+    struct ClientOptions {
         std::string     playerName;
         uint16_t        port;
         std::string     serverAddress;
         std::string     displayAddress;
+
+        std::string     serverIP;
+        std::string     serverPort;
+
+        std::string     guiIP;
+        std::string     guiPort;
 
         struct HelpException : public std::invalid_argument {
             explicit HelpException (const std::string &description) : invalid_argument(description) { }
@@ -25,6 +30,21 @@ namespace bomberman {
         };
 
         ClientOptions(int argumentsCount, char *argumentsTable[]) {
+            playerName = "abcd";
+            port = 14008;
+            serverAddress = "students.mimuw.edu.pl:10410";
+            displayAddress = "localhost:12345";
+
+            auto slicedServer = sliceAddress(serverAddress);
+            auto slicedDisplay = sliceAddress(displayAddress);
+
+            serverIP = slicedServer.first;
+            serverPort = slicedServer.second;
+            guiIP = slicedDisplay.first;
+            guiPort = slicedDisplay.second;
+
+            std::cerr << serverIP << " " << serverPort << std::endl;
+            std::cerr << guiIP << " " << guiPort << std::endl;
             /*
             po::options_description description("Options parser");
             description.add_options()
@@ -45,6 +65,20 @@ namespace bomberman {
             playerName      = programVariables["player-name"].as<std::string>();
             port            = programVariables["port"].as<uint16_t>();
              */
+        }
+
+    private:
+        [[nodiscard]] static std::pair<std::string, std::string> sliceAddress(const std::string &address) {
+            auto iterator = address.size() - 1;
+            while (iterator > 0) {
+                if (address[iterator] == ':')
+                    break;
+                --iterator;
+            }
+            if (iterator == 0 || iterator == address.size() - 1)
+                throw std::invalid_argument("Not a valid address");
+
+            return {address.substr(0, iterator), address.substr(iterator + 1, address.size() - 1)};
         }
     };
 }

@@ -1,8 +1,0 @@
-//
-// Created by Piotr Kamiński on 19/05/2022.
-//
-
-#ifndef BOMBERMANSERVER_CLIENT_H
-#define BOMBERMANSERVER_CLIENT_H
-
-#endif //BOMBERMANSERVER_CLIENT_H

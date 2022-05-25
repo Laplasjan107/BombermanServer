@@ -85,12 +85,6 @@ namespace bomberman {
             loadNumber(bomb.timer);
         }
 
-        static void loadBombsList(const std::vector<Bomb> &bombs) {
-            loadNumber((list_size_t) bombs.size());
-            for (auto &e : bombs)
-                loadBomb(e);
-        }
-
         static void loadBombsList(const std::unordered_map<bomb_id_t, Bomb> &bombs) {
             loadNumber((list_size_t) bombs.size());
             for (auto &e : bombs)
@@ -111,31 +105,22 @@ namespace bomberman {
         }
 
     public:
+        static UDPMessage& GetInstance() {
+            static UDPMessage instance;
+            return instance;
+        }
+
+        friend std::istream &operator>>(std::istream  &input, const std::string& string) {
+            //input >> D.feet >> D.inches;
+            loadString(string);
+            return input;
+        }
+
         static void clearBuffer() {
             loaded = 0;
         }
-/*
-        static void loadGameStatus(const GameStatus &gameStatus) {
-            clearBuffer();
-            loadNumber(static_cast<uint8_t>(DrawMessageType::Game));
-            loadString(gameStatus.serverName);
-            loadNumber(gameStatus.sizeX);
-            loadNumber(gameStatus.sizeY);
-            loadNumber(gameStatus.gameLength);
-            loadNumber(gameStatus.turn);
-            loadPlayersMap(gameStatus.players);
-            loadPlayersPositions(gameStatus.positions);
-            loadPositionsList(gameStatus.blocks);
-            loadBombsList(gameStatus.bombs);
-            loadPositionsList(gameStatus.explosions);
-            loadScores(gameStatus.scores);
-        } */
 
         static void sendAndClear(udp::socket &socket, udp::endpoint& endpoint) {
-            for (int i = 0; i < loaded; ++i) {
-            //    std::cerr << (int) bufferUDP[i] << ' ';
-            }
-            std::cout << std::endl;
             socket.send_to(boost::asio::buffer(bufferUDP, loaded), endpoint);
             clearBuffer();
         }

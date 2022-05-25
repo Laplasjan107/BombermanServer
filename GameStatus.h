@@ -15,52 +15,82 @@
 #include "event/events.h"
 
 namespace bomberman {
-    struct GameStatus {
+    class GameStatus {
+        MapSettings mapSettings;
         bool running = false;
 
-        string serverName{};
-        players_count_t playersCount{};
-        board_size_t sizeX{};
-        board_size_t sizeY{};
         explosion_radius_t explosionRadius{};
-        game_length_t bombTimer{};
-        game_length_t gameLength{};
         game_length_t turn{};
         players_t players;
         players_position_t positions;
         std::unordered_set<Position> blocks;
         std::unordered_map<bomb_id_t, Bomb> bombs;
         std::unordered_set<Position> explosions;
-        //std::vector<Position> explosions;
         std::unordered_map<player_id_t, score_t> scores;
         std::unordered_set<player_id_t> destroyedPlayers;
 
-    public:
-        explicit GameStatus(const HelloMessage &hello) :
-            serverName(hello.mapSettings.serverName),
-            playersCount(hello.mapSettings.playersCount),
-            explosionRadius(hello.mapSettings.explosionRadius),
-            sizeX(hello.mapSettings.sizeX),
-            sizeY(hello.mapSettings.sizeY),
-            gameLength(hello.mapSettings.gameLength),
-            turn()
-        {
+        bool isInside(const Position &position) {
+            return (position.positionX < mapSettings.sizeX) && (position.positionY < mapSettings.sizeY) &&
+                   (position.positionX >= 0) && (position.positionY >= 0);
         }
 
+        void renderExplosion(const Position &position) {
+            static const std::vector<Position> directions {Position {1, 0},
+                                                           Position {0, 1},
+                                                           Position {(board_size_t) -1, 0},
+                                                           Position {0, (board_size_t) -1}};
+
+            for (auto &versor: directions) {
+                for (explosion_radius_t i = 0; i <= explosionRadius; ++i) {
+                    Position currentPosition = position + versor * i;
+                    if (!isInside(currentPosition))
+                        break;
+
+                    explosions.insert(currentPosition);
+                    if (blocks.contains(currentPosition))
+                        break;
+                }
+            }
+        }
+
+        void writeGameToUDP() {
+            UDPMessage::loadNumber(static_cast<uint8_t>(DrawMessageType::Game));
+            UDPMessage::loadString(mapSettings.serverName);
+            UDPMessage::loadNumber(mapSettings.sizeX);
+            UDPMessage::loadNumber(mapSettings.sizeY);
+            UDPMessage::loadNumber(mapSettings.gameLength);
+            UDPMessage::loadNumber(turn);
+            UDPMessage::loadPlayersMap(players);
+            UDPMessage::loadPlayersPositions(positions);
+            UDPMessage::loadPositionsList(blocks);
+            UDPMessage::loadBombsList(bombs);
+            UDPMessage::loadPositionsList(explosions);
+            UDPMessage::loadScores(scores);
+        }
+
+        void writeLobbyToUDP() {
+            UDPMessage::loadNumber(static_cast<uint8_t>(DrawMessageType::Lobby));
+            UDPMessage::loadString(mapSettings.serverName);
+            UDPMessage::loadNumber(mapSettings.playersCount);
+            UDPMessage::loadNumber(mapSettings.sizeX);
+            UDPMessage::loadNumber(mapSettings.sizeY);
+            UDPMessage::loadNumber(mapSettings.gameLength);
+            UDPMessage::loadNumber(mapSettings.explosionRadius);
+            UDPMessage::loadNumber(mapSettings.bombTimer);
+            UDPMessage::loadPlayersMap(players);
+        }
+
+    public:
         GameStatus() = default;
 
         void initializeGame(const HelloMessage &hello) {
-            serverName = hello.mapSettings.serverName;
-            sizeX = hello.mapSettings.sizeX;
-            sizeY = hello.mapSettings.sizeY;
-            gameLength = hello.mapSettings.gameLength;
-            explosionRadius = hello.mapSettings.explosionRadius;
-            turn = 0;
+            running = false;
+            mapSettings = hello.mapSettings;
         }
 
-        void newTurn() {
+        void newTurn(game_length_t turnNumber) {
+            turn = turnNumber;
             destroyedPlayers = std::unordered_set<player_id_t> {};
-            std::cerr << "EXPLOSION CLEARED " << explosions.size() << '\n';
             explosions = std::unordered_set<Position>{};
             for (auto &bomb: bombs) {
                 bomb.second.timer -= 1;
@@ -78,33 +108,7 @@ namespace bomberman {
         }
 
         void placeBomb(const BombPlacedEvent& bombPlaced) {
-            bombs.insert({bombPlaced.bombId, Bomb {bombPlaced.position, bombTimer}});
-        }
-
-        bool isInside(const Position &position) {
-            return (position.positionX < sizeX) && (position.positionY < sizeY) &&
-                    (position.positionX >= 0) && (position.positionY >= 0);
-        }
-
-        void renderExplosion(const Position &position) {
-            static const std::vector<Position> directions {Position {1, 0},
-                                                           Position {0, 1},
-                                                           Position {(board_size_t) -1, 0},
-                                                           Position {0, (board_size_t) -1}};
-
-            for (auto &versor: directions) {
-                std::cerr << "RENDERING EXPL: " << explosions.size() << "rad = " << explosionRadius << '\n';
-                for (explosion_radius_t i = 0; i <= explosionRadius; ++i) {
-                    Position currentPosition = position + versor * i;
-                    if (!isInside(currentPosition))
-                        break;
-
-                    std::cerr << "checking " << currentPosition <<'\n';
-                    explosions.insert(currentPosition);
-                    if (blocks.contains(currentPosition))
-                        break;
-                }
-            }
+            bombs.insert({bombPlaced.bombId, Bomb {bombPlaced.position, mapSettings.bombTimer}});
         }
 
         void explodeBomb(const BombExplodedEvent &bombExplodedEvent) {
@@ -129,7 +133,6 @@ namespace bomberman {
 
         void endGame(const GameEndedMessage &gameEnded) {
             using namespace std;
-            std::cerr << "EXPLOSION CLEARED " << explosions.size() << '\n';
 
             running = false;
             blocks = unordered_set<Position>{};
@@ -138,42 +141,21 @@ namespace bomberman {
             scores = unordered_map<player_id_t, score_t> {};
         }
 
-        GameStatus(string name, board_size_t x, board_size_t y, game_length_t l) :
-            serverName(std::move(name)),
-            sizeX(x),
-            sizeY(y),
-            gameLength(l),
-            turn(0)
-        {
-            scores.insert({1, 1});
+        bool isRunning() {
+            return running;
+        }
+
+        void movePlayer(player_id_t playerId, const Position &position) {
+            positions[playerId] = position;
         }
 
         void writeToUDP() {
             UDPMessage::clearBuffer();
             if (running) {
-                UDPMessage::loadNumber(static_cast<uint8_t>(DrawMessageType::Game));
-                UDPMessage::loadString(serverName);
-                UDPMessage::loadNumber(sizeX);
-                UDPMessage::loadNumber(sizeY);
-                UDPMessage::loadNumber(gameLength);
-                UDPMessage::loadNumber(turn);
-                UDPMessage::loadPlayersMap(players);
-                UDPMessage::loadPlayersPositions(positions);
-                UDPMessage::loadPositionsList(blocks);
-                UDPMessage::loadBombsList(bombs);
-                UDPMessage::loadPositionsList(explosions);
-                UDPMessage::loadScores(scores);
+                writeGameToUDP();
             }
             else {
-                UDPMessage::loadNumber(static_cast<uint8_t>(DrawMessageType::Lobby));
-                UDPMessage::loadString(serverName);
-                UDPMessage::loadNumber(playersCount);
-                UDPMessage::loadNumber(sizeX);
-                UDPMessage::loadNumber(sizeY);
-                UDPMessage::loadNumber(gameLength);
-                UDPMessage::loadNumber(explosionRadius);
-                UDPMessage::loadNumber(bombTimer);
-                UDPMessage::loadPlayersMap(players);
+                writeLobbyToUDP();
             }
         }
     };

@@ -6,10 +6,13 @@
 #define BOMBERMANSERVER_JOINMESSAGE_H
 
 #include "ClientMessageType.h"
-#include "../IMessage.h"
+#include "messages/IMessage.h"
 
-class JoinMessage : IMessage {
+namespace bomberman {
+    class JoinMessage : IMessage {
 
-};
+    };
+}
+
 
 #endif //BOMBERMANSERVER_JOINMESSAGE_H

@@ -68,12 +68,11 @@ namespace bomberman {
                     valid = true;
                 }
 
-                std::cerr << "VALID = " << valid << " " << "RUNNING = " << game->isRunning() << '\n';
-
                 if (valid && !game->isRunning()) {
-                    boost::array<char, 6> m{0, 4, 'a', 'b', 'c', 'd'};
-                    std::cerr << "WRITING NAME TO BUFFER\n";
+                    //boost::array<char, 8> m{0, 6, 'r', 't', 'o', 'i', 'p', 'K'};
+                    boost::array<uint8_t, 2> m {0, (uint8_t) playerName.length()};
                     boost::asio::write(*serverSocket, boost::asio::buffer(m));
+                    boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
                 }
             }
 
@@ -181,6 +180,7 @@ namespace bomberman {
                 message_header_t messageType;
                 boost::asio::read(*serverSocket, boost::asio::buffer(&messageType, sizeof(messageType)));
                 std::cerr << "New message " << (int) messageType << std::endl;
+                bool refreshGUI = true;
 
                 switch (messageType) {
                     case ServerMessageType::Hello:
@@ -191,6 +191,7 @@ namespace bomberman {
                         break;
                     case ServerMessageType::GameStarted:
                         handleGameStartedMessage();
+                        refreshGUI = false;
                         break;
                     case ServerMessageType::Turn:
                         handleTurnMessage();
@@ -201,7 +202,9 @@ namespace bomberman {
                     default:
                         throw UnexpectedMessageException();
                 }
-                sendGameToGUI();
+
+                if (refreshGUI)
+                    sendGameToGUI();
             }
         }
 
@@ -232,6 +235,7 @@ namespace bomberman {
             makeServerConnection(options);
             bindGuiListener(options);
             bindGuiWriter(options);
+            playerName = options.playerName;
         }
 
         void run() {

@@ -140,6 +140,7 @@ namespace bomberman {
             bombs = unordered_map<bomb_id_t, Bomb> {};
             explosions = unordered_set<Position> {};
             scores = unordered_map<player_id_t, score_t> {};
+            players = unordered_map<player_id_t, Player> {};
         }
 
         bool isRunning() {

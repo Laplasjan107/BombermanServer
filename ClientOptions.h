@@ -30,9 +30,9 @@ namespace bomberman {
         };
 
         ClientOptions(int argumentsCount, char *argumentsTable[]) {
-            playerName = "abcd";
+            playerName = "rtoipK";
             port = 14008;
-            serverAddress = "students.mimuw.edu.pl:10001";
+            serverAddress = "students.mimuw.edu.pl:10211";
             displayAddress = "localhost:12345";
 
             auto slicedServer = sliceAddress(serverAddress);

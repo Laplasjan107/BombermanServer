@@ -19,7 +19,6 @@ namespace bomberman {
         MapSettings mapSettings;
         bool running = false;
 
-        explosion_radius_t explosionRadius{};
         game_length_t turn{};
         players_t players;
         players_position_t positions;
@@ -41,7 +40,7 @@ namespace bomberman {
                                                            Position {0, (board_size_t) -1}};
 
             for (auto &versor: directions) {
-                for (explosion_radius_t i = 0; i <= explosionRadius; ++i) {
+                for (explosion_radius_t i = 0; i <= mapSettings.explosionRadius; ++i) {
                     Position currentPosition = position + versor * i;
                     if (!isInside(currentPosition))
                         break;
@@ -54,30 +53,32 @@ namespace bomberman {
         }
 
         void writeGameToUDP() {
-            UDPMessage::loadNumber(static_cast<uint8_t>(DrawMessageType::Game));
-            UDPMessage::loadString(mapSettings.serverName);
-            UDPMessage::loadNumber(mapSettings.sizeX);
-            UDPMessage::loadNumber(mapSettings.sizeY);
-            UDPMessage::loadNumber(mapSettings.gameLength);
-            UDPMessage::loadNumber(turn);
-            UDPMessage::loadPlayersMap(players);
-            UDPMessage::loadPlayersPositions(positions);
-            UDPMessage::loadPositionsList(blocks);
-            UDPMessage::loadBombsList(bombs);
-            UDPMessage::loadPositionsList(explosions);
-            UDPMessage::loadScores(scores);
+            UDPMessage::getInstance()
+                << static_cast<uint8_t>(DrawMessageType::Game)
+                << mapSettings.serverName
+                << mapSettings.sizeX
+                << mapSettings.sizeY
+                << mapSettings.gameLength
+                << turn
+                << players
+                << positions
+                << blocks
+                << bombs
+                << explosions
+                << scores;
         }
 
         void writeLobbyToUDP() {
-            UDPMessage::loadNumber(static_cast<uint8_t>(DrawMessageType::Lobby));
-            UDPMessage::loadString(mapSettings.serverName);
-            UDPMessage::loadNumber(mapSettings.playersCount);
-            UDPMessage::loadNumber(mapSettings.sizeX);
-            UDPMessage::loadNumber(mapSettings.sizeY);
-            UDPMessage::loadNumber(mapSettings.gameLength);
-            UDPMessage::loadNumber(mapSettings.explosionRadius);
-            UDPMessage::loadNumber(mapSettings.bombTimer);
-            UDPMessage::loadPlayersMap(players);
+            UDPMessage::getInstance()
+                << static_cast<uint8_t>(DrawMessageType::Lobby)
+                << mapSettings.serverName
+                << mapSettings.playersCount
+                << mapSettings.sizeX
+                << mapSettings.sizeY
+                << mapSettings.gameLength
+                << mapSettings.explosionRadius
+                << mapSettings.bombTimer
+                << players;
         }
 
     public:

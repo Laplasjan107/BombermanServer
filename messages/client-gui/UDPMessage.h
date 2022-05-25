@@ -20,6 +20,11 @@
 namespace bomberman {
     using boost::asio::ip::udp;
 
+    template <typename T, typename U>
+    concept loadable = requires(T t, U u) {
+        t << u;
+    };
+
     class UDPMessage {
         static const constexpr size_t udpDatagramSize = 65507;
     public:
@@ -68,12 +73,6 @@ namespace bomberman {
             }
         }
 
-        static void loadPositionsList(const std::vector<Position> &positions) {
-            loadNumber((list_size_t) positions.size());
-            for (auto &e : positions)
-                loadPosition(e);
-        }
-
         static void loadPositionsList(const std::unordered_set<Position> &positions) {
             loadNumber((list_size_t) positions.size());
             for (auto &e : positions)
@@ -105,15 +104,73 @@ namespace bomberman {
         }
 
     public:
-        static UDPMessage& GetInstance() {
+        static UDPMessage& getInstance() {
             static UDPMessage instance;
             return instance;
         }
 
-        friend std::istream &operator>>(std::istream  &input, const std::string& string) {
-            //input >> D.feet >> D.inches;
-            loadString(string);
-            return input;
+       template<typename T>
+       requires std::is_convertible_v<T, int>
+       friend UDPMessage& operator<<(UDPMessage &message, T number) {
+           if (loaded + sizeof(T) > udpDatagramSize)
+               throw;
+
+           T* toData = (T *) (bufferUDP + loaded);
+           boost::endian::endian_reverse_inplace(number);
+           *toData = number;
+           loaded += sizeof(T);
+
+           return message;
+       }
+
+       friend UDPMessage& operator<<(UDPMessage &message, const std::string &string) {
+           if (loaded + string.length() + 1 > udpDatagramSize)
+               throw;
+
+           message << (string_length_t) string.length();
+           memcpy(bufferUDP + loaded, string.data(), string.length());
+           loaded += string.length();
+           return message;
+       }
+
+        friend UDPMessage& operator<<(UDPMessage &message, const Player &player) {
+            message << player.playerName << player.playerAddress;
+            return message;
+        }
+
+        friend UDPMessage& operator<<(UDPMessage &message, const Position &position) {
+            message << position.positionX << position.positionY;
+            return message;
+        }
+
+        friend UDPMessage& operator<<(UDPMessage &message, const Bomb &bomb) {
+            message << bomb.bombPosition << bomb.timer;
+            return message;
+        }
+
+        template <typename T>
+        requires loadable<UDPMessage, T>
+        friend UDPMessage& operator<<(UDPMessage &message, const std::unordered_set<T> &elements) {
+            message << (list_size_t) elements.size();
+            for (auto &element: elements)
+                message << element;
+            return message;
+        }
+
+        template <typename T, typename U>
+        requires loadable<UDPMessage, T> && loadable<UDPMessage, U>
+        friend UDPMessage& operator<<(UDPMessage &message, const std::unordered_map<T, U> &map) {
+            message << (map_size_t) map.size();
+            for (auto &element: map)
+                message << element.first << element.second;
+            return message;
+        }
+
+        friend UDPMessage& operator<<(UDPMessage &message, const std::unordered_map<bomb_id_t , Bomb> &bombs) {
+            message << (list_size_t) bombs.size();
+            for (auto &element: bombs)
+                message << element.second;
+            return message;
         }
 
         static void clearBuffer() {

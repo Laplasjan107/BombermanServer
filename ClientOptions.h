@@ -32,7 +32,7 @@ namespace bomberman {
         ClientOptions(int argumentsCount, char *argumentsTable[]) {
             playerName = "abcd";
             port = 14008;
-            serverAddress = "students.mimuw.edu.pl:10410";
+            serverAddress = "students.mimuw.edu.pl:10001";
             displayAddress = "localhost:12345";
 
             auto slicedServer = sliceAddress(serverAddress);

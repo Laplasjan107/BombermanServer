@@ -13,7 +13,6 @@
 #include <thread>
 
 #include "ClientOptions.h"
-#include "Direction.h"
 #include "MapSettings.h"
 #include "UnexpectedMessageException.h"
 #include "messages/messages.h"

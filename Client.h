@@ -61,8 +61,7 @@ namespace bomberman {
                         if (messageSize == 1) {
                             if (game->isRunning()) {
                                 handlePlaceBomb();
-                            }
-                            else {
+                            } else {
                                 sendJoinToServer();
                             }
                         }
@@ -71,8 +70,7 @@ namespace bomberman {
                         if (messageSize == 1) {
                             if (game->isRunning()) {
                                 handlePlaceBlock();
-                            }
-                            else {
+                            } else {
                                 sendJoinToServer();
                             }
                         }
@@ -81,8 +79,7 @@ namespace bomberman {
                         if (messageSize == 2 && GUIBuffer[2] < 4) {
                             if (game->isRunning()) {
                                 handleMove();
-                            }
-                            else {
+                            } else {
                                 sendJoinToServer();
                             }
                         }

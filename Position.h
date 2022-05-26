@@ -28,34 +28,32 @@ namespace bomberman {
             return (positionX == other.positionX) && (positionY == other.positionY);
         }
 
-        Position operator +(Position const &other) const {
+        Position operator+(Position const &other) const {
             Position added;
             added.positionX = positionX + other.positionX;
             added.positionY = positionY + other.positionY;
             return added;
         }
 
-        Position operator *(explosion_radius_t multiplier) const {
+        Position operator*(explosion_radius_t multiplier) const {
             Position added;
             added.positionX = positionX * multiplier;
             added.positionY = positionY * multiplier;
             return added;
         }
 
-        friend std::ostream& operator<<(std::ostream& os, const Position& position) {
+        friend std::ostream &operator<<(std::ostream &os, const Position &position) {
             return os << '(' << position.positionX << ", " << position.positionY << ')';
         }
     };
 }
 
 namespace std {
-    template <>
-    struct hash<bomberman::Position>
-    {
-        size_t operator()(const bomberman::Position& position) const
-        {
-            return hash<bomberman::board_size_t>()(position.positionX)^
-                    hash<bomberman::board_size_t>()(position.positionY);
+    template<>
+    struct hash<bomberman::Position> {
+        size_t operator()(const bomberman::Position &position) const {
+            return hash<bomberman::board_size_t>()(position.positionX) ^
+                   hash<bomberman::board_size_t>()(position.positionY);
         }
     };
 

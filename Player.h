@@ -23,12 +23,9 @@ namespace bomberman {
             playerAddress = read_string(socket);
         }
 
-        Player(string name, string address) : playerName(std::move(name)), playerAddress(std::move(address)) { }
+        Player(string name, string address) : playerName(std::move(name)), playerAddress(std::move(address)) {}
 
         void print() const {
-            using namespace std;
-
-            cout << "PLAYER: name = " << playerName << " address = " << playerAddress << endl;
         }
     };
 

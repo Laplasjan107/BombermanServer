@@ -26,7 +26,13 @@ namespace bomberman {
 
     class Client {
         static const constexpr size_t GUIBufferSize = 10;
+        static const constexpr size_t maxDirection = 4;
+        static const constexpr size_t moveSize = 2;
+        static const constexpr size_t moveDirectionPosition = 1;
+
         boost::array<char, GUIBufferSize> GUIBuffer;
+
+
         std::string playerName;
         std::unique_ptr<boost::asio::io_context> context;
         std::unique_ptr<tcp::socket> serverSocket;
@@ -34,19 +40,26 @@ namespace bomberman {
         udp::endpoint guiWriteEndpoint;
         std::unique_ptr<GameStatus> game;
 
+        void sendJoinToServer() {
+            boost::array<uint8_t, 2> nameHeader{static_cast<uint8_t>(ClientMessageType::Join),
+                                                (uint8_t) playerName.length()};
+            boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
+            boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
+        }
+
         void handlePlaceBomb() {
-            char place_bomb[1] = {1};
+            uint8_t place_bomb[1] = {static_cast<uint8_t>(ClientMessageType::PlaceBomb)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, 1));
         }
 
         void handlePlaceBlock() {
-            char place_block[1] = {2};
+            uint8_t place_block[1] = {static_cast<uint8_t>(ClientMessageType::PlaceBlock)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_block, 1));
         }
 
         void handleMove() {
-            char move[2] = {3, 0};
-            move[1] = GUIBuffer[1];
+            uint8_t move[moveSize] = {static_cast<uint8_t>(ClientMessageType::Move), 0};
+            move[moveDirectionPosition] = GUIBuffer[moveDirectionPosition];
             boost::asio::write(*serverSocket, boost::asio::buffer(move, 2));
         }
 
@@ -75,7 +88,7 @@ namespace bomberman {
                         }
                         break;
                     case (static_cast<uint8_t>(InputMessageType::Move)):
-                        if (messageSize == 2 && GUIBuffer[2] < 4) {
+                        if (messageSize == moveSize && GUIBuffer[moveDirectionPosition] < maxDirection) {
                             if (game->isRunning()) {
                                 handleMove();
                             } else {
@@ -84,12 +97,6 @@ namespace bomberman {
                         }
                 }
             }
-        }
-
-        void sendJoinToServer() {
-            boost::array<uint8_t, 2> nameHeader{0, (uint8_t) playerName.length()};
-            boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
-            boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
         }
 
         void sendGameToGUI() {

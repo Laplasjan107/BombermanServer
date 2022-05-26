@@ -247,8 +247,8 @@ namespace bomberman {
         }
 
         ~Client() {
-            GUISocket.close();
-            ServerSocket.close();
+            GUISocket->close();
+            serverSocket->close();
         }
 
         void run() {

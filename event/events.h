@@ -7,9 +7,7 @@
 
 #include "EventType.h"
 #include "Event.h"
-#include "BlockPlaced.h"
 #include "BombExploded.h"
 #include "BombPlaced.h"
-#include "PlayerMoved.h"
 
 #endif //BOMBERMANSERVER_EVENTS_H

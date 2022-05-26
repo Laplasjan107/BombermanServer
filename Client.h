@@ -34,7 +34,6 @@ namespace bomberman {
 
         boost::array<uint8_t, GUIBufferSize> GUIBuffer;
 
-
         std::string playerName;
         std::unique_ptr<boost::asio::io_context> context;
         std::unique_ptr<tcp::socket> serverSocket;
@@ -45,7 +44,7 @@ namespace bomberman {
         void sendJoinToServer() {
             static const constexpr size_t joinHeaderSize = 2;
             boost::array<uint8_t, joinHeaderSize> nameHeader{static_cast<uint8_t>(ClientMessageType::Join),
-                                                       (uint8_t) playerName.length()};
+                                                             (uint8_t) playerName.length()};
             boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
             boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
         }
@@ -94,7 +93,7 @@ namespace bomberman {
                         }
                         break;
                     case (static_cast<uint8_t>(InputMessageType::Move)):
-                        if (messageSize == GUIMoveSize && GUIBuffer[moveDirectionPosition] < maxDirection) {
+                        if (messageSize == GUIMoveSize && GUIBuffer[moveDirectionPosition] <= maxDirection) {
                             if (game->isRunning()) {
                                 handleMove();
                             } else {
@@ -188,6 +187,7 @@ namespace bomberman {
             game->endGame(gameEnded);
         }
 
+        // Main server connection handler.
         void serverConnection() {
             while (true) {
                 message_header_t messageType;
@@ -225,15 +225,15 @@ namespace bomberman {
             tcp::resolver::results_type endpoints = resolver.resolve(options.serverIP, options.serverPort);
             serverSocket = std::make_unique<tcp::socket>(*context);
             boost::asio::connect(*serverSocket, endpoints);
-            boost::asio::ip::tcp::no_delay option(true);
+            tcp::no_delay option(true);
             serverSocket->set_option(option);
         }
 
         void makeGUIConnection(ClientOptions &options) {
             guiSocketWriter = std::make_unique<udp::socket>(*context, udp::endpoint(udp::v6(), options.port));
-            udp::resolver res(*context);
-            udp::resolver::iterator iter = res.resolve(options.guiIP, options.guiPort);
-            guiWriteEndpoint = *iter;
+            udp::resolver resolver(*context);
+            udp::resolver::iterator iterator = resolver.resolve(options.guiIP, options.guiPort);
+            guiWriteEndpoint = *iterator;
         }
 
     public:

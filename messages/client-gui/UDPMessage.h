@@ -178,6 +178,10 @@ namespace bomberman {
         }
 
         static void sendAndClear(udp::socket &socket, udp::endpoint& endpoint) {
+		std::cerr << "TO GUI:\n";
+		for (int i = 0; i < loaded; ++i)
+			std::cerr << (int) bufferUDP[i] << ' ';
+		std::cerr << std::endl;
             socket.send_to(boost::asio::buffer(bufferUDP, loaded), endpoint);
             clearBuffer();
         }

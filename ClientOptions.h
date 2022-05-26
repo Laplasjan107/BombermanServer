@@ -7,6 +7,8 @@
 
 #include "common.h"
 #include "types.h"
+//#include <boost/program_options.hpp>
+#include <boost/program_options.hpp>
 
 namespace bomberman {
     struct ClientOptions {
@@ -30,22 +32,23 @@ namespace bomberman {
         };
 
         ClientOptions(int argumentsCount, char *argumentsTable[]) {
-            playerName = "rtoipK";
-            port = 14008;
-            serverAddress = "students.mimuw.edu.pl:10211";
-            displayAddress = "localhost:12345";
+		namespace po = boost::program_options;
+//            playerName = "rtoipK";
+//            port = 14008;
+//            serverAddress = "students.mimuw.edu.pl:10211";
+//            displayAddress = "localhost:12345";
 
-            auto slicedServer = sliceAddress(serverAddress);
-            auto slicedDisplay = sliceAddress(displayAddress);
+//            auto slicedServer = sliceAddress(serverAddress);
+//            auto slicedDisplay = sliceAddress(displayAddress);
 
-            serverIP = slicedServer.first;
-            serverPort = slicedServer.second;
-            guiIP = slicedDisplay.first;
-            guiPort = slicedDisplay.second;
+//            serverIP = slicedServer.first;
+//            serverPort = slicedServer.second;
+//            guiIP = slicedDisplay.first;
+//            guiPort = slicedDisplay.second;
 
-            std::cerr << serverIP << " " << serverPort << std::endl;
-            std::cerr << guiIP << " " << guiPort << std::endl;
-            /*
+//            std::cerr << serverIP << " " << serverPort << std::endl;
+//            std::cerr << guiIP << " " << guiPort << std::endl;
+            
             po::options_description description("Options parser");
             description.add_options()
                     ("help,h", "Help request")
@@ -64,7 +67,14 @@ namespace bomberman {
             serverAddress   = programVariables["server-address"].as<std::string>();
             playerName      = programVariables["player-name"].as<std::string>();
             port            = programVariables["port"].as<uint16_t>();
-             */
+            
+	auto slicedServer = sliceAddress(serverAddress);
+            auto slicedDisplay = sliceAddress(displayAddress);
+
+            serverIP = slicedServer.first;
+            serverPort = slicedServer.second;
+            guiIP = slicedDisplay.first;
+            guiPort = slicedDisplay.second;
         }
 
     private:

@@ -165,7 +165,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=BombermanServer
+CMAKE_PROJECT_NAME:STATIC=robots-client
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/ranlib
@@ -234,6 +234,15 @@ boost_headers_DIR:PATH=/opt/homebrew/lib/cmake/boost_headers-1.78.0
 
 //The directory containing a CMake configuration file for boost_program_options.
 boost_program_options_DIR:PATH=/opt/homebrew/lib/cmake/boost_program_options-1.78.0
+
+//Value Computed by CMake
+robots-client_BINARY_DIR:STATIC=/Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug
+
+//Value Computed by CMake
+robots-client_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+robots-client_SOURCE_DIR:STATIC=/Users/laplasjan/CLionProjects/BombermanServer
 
 
 ########################

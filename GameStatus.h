@@ -139,7 +139,7 @@ namespace bomberman {
             blocks.insert(blockPosition);
         }
 
-        void endGame(const GameEndedMessage &gameEnded) {
+        void endGame([[maybe_unused]] const GameEndedMessage &gameEnded) {
             using namespace std;
 
             running = false;
@@ -150,7 +150,7 @@ namespace bomberman {
             players = unordered_map<player_id_t, Player> {};
         }
 
-        bool isRunning() {
+        bool isRunning() const {
             return running;
         }
 

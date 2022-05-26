@@ -1,0 +1,3 @@
+/Users/laplasjan/CLionProjects/BombermanServer/debug/CMakeFiles/BombermanClient.dir
+/Users/laplasjan/CLionProjects/BombermanServer/debug/CMakeFiles/edit_cache.dir
+/Users/laplasjan/CLionProjects/BombermanServer/debug/CMakeFiles/rebuild_cache.dir

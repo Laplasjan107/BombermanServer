@@ -11,12 +11,11 @@
 
 namespace bomberman {
     struct Bomb {
-        Position bombPosition;
-        bomb_timer_t timer{};
+          Position bombPosition;
+          bomb_timer_t timer{};
 
-        Bomb() = default;
-
-        Bomb(Position position, bomb_timer_t time) : bombPosition(position), timer(time) {}
+          Bomb() = default;
+          Bomb(Position position, bomb_timer_t time) : bombPosition(position), timer(time) {}
     };
 }
 

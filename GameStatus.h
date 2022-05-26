@@ -107,7 +107,7 @@ namespace bomberman {
 
         void startGame(GameStartedMessage &started) {
             running = true;
-            for (const auto &player: started.activePlayers)
+            for (const auto& player: started.activePlayers)
                 scores.insert({player.first, 0});
             players = std::move(started.activePlayers);
         }

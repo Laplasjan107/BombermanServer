@@ -13,18 +13,13 @@
 #include "Player.h"
 
 namespace bomberman {
-    class AcceptedPlayerMessage : IMessage {
-    public:
-        player_id_t playerId;
+    struct AcceptedPlayerMessage : IMessage {
+        player_id_t playerId{};
         Player player;
 
         explicit AcceptedPlayerMessage(socket_t &socket) {
             read_number_inplace(socket, playerId);
             player = Player(socket);
-        }
-
-        void print() const {
-
         }
     };
 }

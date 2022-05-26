@@ -43,7 +43,7 @@ namespace bomberman {
         std::unique_ptr<GameStatus> game;
 
         void sendJoinToServer() {
-            static const constexpr joinHeaderSize = 2;
+            static const constexpr size_t joinHeaderSize = 2;
             boost::array<uint8_t, joinHeaderSize> nameHeader{static_cast<uint8_t>(ClientMessageType::Join),
                                                        (uint8_t) playerName.length()};
             boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
@@ -51,22 +51,22 @@ namespace bomberman {
         }
 
         void handlePlaceBomb() {
-            static const constexpr placeBombSize = 1;
+            static const constexpr size_t placeBombSize = 1;
             uint8_t place_bomb[placeBombSize] = {static_cast<uint8_t>(ClientMessageType::PlaceBomb)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, placeBombSize));
         }
 
         void handlePlaceBlock() {
-            static const constexpr placeBlockSize = 1;
+            static const constexpr size_t placeBlockSize = 1;
             uint8_t place_block[placeBlockSize] = {static_cast<uint8_t>(ClientMessageType::PlaceBlock)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_block, placeBlockSize));
         }
 
         void handleMove() {
-            static const constexpr moveSize = 1;
+            static const constexpr size_t moveSize = 2;
             uint8_t move[moveSize] = {static_cast<uint8_t>(ClientMessageType::Move), 0};
             move[moveDirectionPosition] = GUIBuffer[moveDirectionPosition];
-            boost::asio::write(*serverSocket, boost::asio::buffer(move, 2));
+            boost::asio::write(*serverSocket, boost::asio::buffer(move, moveSize));
         }
 
         [[noreturn]] void guiConnection() {
@@ -94,7 +94,7 @@ namespace bomberman {
                         }
                         break;
                     case (static_cast<uint8_t>(InputMessageType::Move)):
-                        if (messageSize == GUIMoveBombSize && GUIBuffer[moveDirectionPosition] < maxDirection) {
+                        if (messageSize == GUIMoveSize && GUIBuffer[moveDirectionPosition] < maxDirection) {
                             if (game->isRunning()) {
                                 handleMove();
                             } else {

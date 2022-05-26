@@ -20,7 +20,7 @@ namespace bomberman {
 
         MapSettings() = default;
 
-        explicit MapSettings(socket_t &socket) {
+        MapSettings(socket_t &socket) {
             serverName = read_string(socket);
             read_number_inplace(socket, playersCount);
             read_number_inplace(socket, sizeX);

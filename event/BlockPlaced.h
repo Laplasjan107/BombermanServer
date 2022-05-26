@@ -1,0 +1,8 @@
+//
+// Created by Piotr Kamiński on 22/05/2022.
+//
+
+#ifndef BOMBERMANSERVER_BLOCKPLACED_H
+#define BOMBERMANSERVER_BLOCKPLACED_H
+
+#endif //BOMBERMANSERVER_BLOCKPLACED_H

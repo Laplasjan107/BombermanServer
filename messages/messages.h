@@ -13,5 +13,6 @@
 #include "server-client/AcceptedPlayerMessage.h"
 #include "server-client/GameEndedMessage.h"
 #include "client-gui/LobbyMessage.h"
+#include "client-gui/InputMessageType.h"
 
 #endif //BOMBERMANSERVER_MESSAGES_H

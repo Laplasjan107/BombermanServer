@@ -26,11 +26,13 @@ namespace bomberman {
 
     class Client {
         static const constexpr size_t GUIBufferSize = 10;
-        static const constexpr char maxDirection = 4;
-        static const constexpr size_t moveSize = 2;
+        static const constexpr size_t maxDirection = 3;
         static const constexpr size_t moveDirectionPosition = 1;
+        static const constexpr size_t GUIPlaceBombSize = 1;
+        static const constexpr size_t GUIPlaceBlockSize = 1;
+        static const constexpr size_t GUIMoveSize = 2;
 
-        boost::array<char, GUIBufferSize> GUIBuffer;
+        boost::array<uint8_t, GUIBufferSize> GUIBuffer;
 
 
         std::string playerName;
@@ -41,23 +43,27 @@ namespace bomberman {
         std::unique_ptr<GameStatus> game;
 
         void sendJoinToServer() {
-            boost::array<uint8_t, 2> nameHeader{static_cast<uint8_t>(ClientMessageType::Join),
-                                                (uint8_t) playerName.length()};
+            static const constexpr joinHeaderSize = 2;
+            boost::array<uint8_t, joinHeaderSize> nameHeader{static_cast<uint8_t>(ClientMessageType::Join),
+                                                       (uint8_t) playerName.length()};
             boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
             boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
         }
 
         void handlePlaceBomb() {
-            uint8_t place_bomb[1] = {static_cast<uint8_t>(ClientMessageType::PlaceBomb)};
-            boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, 1));
+            static const constexpr placeBombSize = 1;
+            uint8_t place_bomb[placeBombSize] = {static_cast<uint8_t>(ClientMessageType::PlaceBomb)};
+            boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, placeBombSize));
         }
 
         void handlePlaceBlock() {
-            uint8_t place_block[1] = {static_cast<uint8_t>(ClientMessageType::PlaceBlock)};
-            boost::asio::write(*serverSocket, boost::asio::buffer(place_block, 1));
+            static const constexpr placeBlockSize = 1;
+            uint8_t place_block[placeBlockSize] = {static_cast<uint8_t>(ClientMessageType::PlaceBlock)};
+            boost::asio::write(*serverSocket, boost::asio::buffer(place_block, placeBlockSize));
         }
 
         void handleMove() {
+            static const constexpr moveSize = 1;
             uint8_t move[moveSize] = {static_cast<uint8_t>(ClientMessageType::Move), 0};
             move[moveDirectionPosition] = GUIBuffer[moveDirectionPosition];
             boost::asio::write(*serverSocket, boost::asio::buffer(move, 2));
@@ -70,7 +76,7 @@ namespace bomberman {
 
                 switch (GUIBuffer[0]) {
                     case (static_cast<uint8_t>(InputMessageType::PlaceBomb)):
-                        if (messageSize == 1) {
+                        if (messageSize == GUIPlaceBombSize) {
                             if (game->isRunning()) {
                                 handlePlaceBomb();
                             } else {
@@ -79,7 +85,7 @@ namespace bomberman {
                         }
                         break;
                     case (static_cast<uint8_t>(InputMessageType::PlaceBlock)):
-                        if (messageSize == 1) {
+                        if (messageSize == GUIPlaceBlockSize) {
                             if (game->isRunning()) {
                                 handlePlaceBlock();
                             } else {
@@ -88,7 +94,7 @@ namespace bomberman {
                         }
                         break;
                     case (static_cast<uint8_t>(InputMessageType::Move)):
-                        if (messageSize == moveSize && GUIBuffer[moveDirectionPosition] < maxDirection) {
+                        if (messageSize == GUIMoveBombSize && GUIBuffer[moveDirectionPosition] < maxDirection) {
                             if (game->isRunning()) {
                                 handleMove();
                             } else {

@@ -7,32 +7,31 @@
 
 #include "common.h"
 #include "types.h"
-//#include <boost/program_options.hpp>
 #include <boost/program_options.hpp>
 
 namespace bomberman {
     struct ClientOptions {
-        std::string     playerName;
-        uint16_t        port;
-        std::string     serverAddress;
-        std::string     displayAddress;
+        std::string playerName;
+        uint16_t port;
+        std::string serverAddress;
+        std::string displayAddress;
 
-        std::string     serverIP;
-        std::string     serverPort;
+        std::string serverIP;
+        std::string serverPort;
 
-        std::string     guiIP;
-        std::string     guiPort;
+        std::string guiIP;
+        std::string guiPort;
 
         struct HelpException : public std::invalid_argument {
-            explicit HelpException (const std::string &description) : invalid_argument(description) { }
+            explicit HelpException(const std::string &description) : invalid_argument(description) {}
 
-            [[nodiscard]] const char *what () const noexcept override {
+            [[nodiscard]] const char *what() const noexcept override {
                 return "Help message requested";
             }
         };
 
         ClientOptions(int argumentsCount, char *argumentsTable[]) {
-		namespace po = boost::program_options;
+            namespace po = boost::program_options;
 //            playerName = "rtoipK";
 //            port = 14008;
 //            serverAddress = "students.mimuw.edu.pl:10211";
@@ -45,10 +44,6 @@ namespace bomberman {
 //            serverPort = slicedServer.second;
 //            guiIP = slicedDisplay.first;
 //            guiPort = slicedDisplay.second;
-
-//            std::cerr << serverIP << " " << serverPort << std::endl;
-//            std::cerr << guiIP << " " << guiPort << std::endl;
-            
             po::options_description description("Options parser");
             description.add_options()
                     ("help,h", "Help request")
@@ -58,17 +53,18 @@ namespace bomberman {
                     ("server-address,s", po::value<std::string>()->required(), "Server address");
 
             po::variables_map programVariables;
-            po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
+            po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(),
+                      programVariables);
             if (programVariables.count("help"))
                 throw HelpException("Asked for help message");
 
             po::notify(programVariables);
-            displayAddress  = programVariables["display-address"].as<std::string>();
-            serverAddress   = programVariables["server-address"].as<std::string>();
-            playerName      = programVariables["player-name"].as<std::string>();
-            port            = programVariables["port"].as<uint16_t>();
-            
-	auto slicedServer = sliceAddress(serverAddress);
+            displayAddress = programVariables["display-address"].as<std::string>();
+            serverAddress = programVariables["server-address"].as<std::string>();
+            playerName = programVariables["player-name"].as<std::string>();
+            port = programVariables["port"].as<uint16_t>();
+
+            auto slicedServer = sliceAddress(serverAddress);
             auto slicedDisplay = sliceAddress(displayAddress);
 
             serverIP = slicedServer.first;

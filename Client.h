@@ -35,13 +35,20 @@ namespace bomberman {
         udp::endpoint guiWriteEndpoint;
         std::unique_ptr<GameStatus> game;
 
+        void sendJoinToServer() {
+            boost::array<uint8_t, 2> nameHeader{static_cast<uint8_t>(ClientMessageType::Join),
+                                                (uint8_t) playerName.length()};
+            boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
+            boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
+        }
+
         void handlePlaceBomb() {
-            char place_bomb[1] = {1};
+            char place_bomb[1] = {static_cast<uint8_t>(ClientMessageType::PlaceBomb)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, 1));
         }
 
         void handlePlaceBlock() {
-            char place_block[1] = {2};
+            char place_block[1] = {static_cast<uint8_t>(ClientMessageType::PlaceBlock)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_block, 1));
         }
 
@@ -61,8 +68,7 @@ namespace bomberman {
                         if (messageSize == 1) {
                             if (game->isRunning()) {
                                 handlePlaceBomb();
-                            }
-                            else {
+                            } else {
                                 sendJoinToServer();
                             }
                         }
@@ -71,8 +77,7 @@ namespace bomberman {
                         if (messageSize == 1) {
                             if (game->isRunning()) {
                                 handlePlaceBlock();
-                            }
-                            else {
+                            } else {
                                 sendJoinToServer();
                             }
                         }
@@ -81,19 +86,12 @@ namespace bomberman {
                         if (messageSize == 2 && GUIBuffer[2] < 4) {
                             if (game->isRunning()) {
                                 handleMove();
-                            }
-                            else {
+                            } else {
                                 sendJoinToServer();
                             }
                         }
                 }
             }
-        }
-
-        void sendJoinToServer() {
-            boost::array<uint8_t, 2> nameHeader{0, (uint8_t) playerName.length()};
-            boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
-            boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
         }
 
         void sendGameToGUI() {

@@ -6,6 +6,7 @@
 #define BOMBERMANSERVER_MESSAGES_H
 
 #include "IMessage.h"
+#include "server-client/ClientMessageType.h"
 #include "server-client/GameStartedMessage.h"
 #include "server-client/ServerMessageType.h"
 #include "server-client/HelloMessage.h"

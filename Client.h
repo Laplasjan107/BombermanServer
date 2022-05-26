@@ -37,7 +37,7 @@ namespace bomberman {
         std::string playerName;
         std::unique_ptr<boost::asio::io_context> context;
         std::unique_ptr<tcp::socket> serverSocket;
-        std::unique_ptr<udp::socket> guiSocketWriter;
+        std::unique_ptr<udp::socket> GUISocket;
         udp::endpoint guiWriteEndpoint;
         std::unique_ptr<GameStatus> game;
 
@@ -71,7 +71,7 @@ namespace bomberman {
         [[noreturn]] void guiConnection() {
             udp::endpoint remote_endpoint;
             while (true) {
-                auto messageSize = guiSocketWriter->receive_from(boost::asio::buffer(GUIBuffer), remote_endpoint);
+                auto messageSize = GUISocket->receive_from(boost::asio::buffer(GUIBuffer), remote_endpoint);
 
                 switch (GUIBuffer[0]) {
                     case (static_cast<uint8_t>(InputMessageType::PlaceBomb)):
@@ -106,7 +106,7 @@ namespace bomberman {
 
         void sendGameToGUI() {
             game->writeToUDP();
-            UDPMessage::sendAndClear(*guiSocketWriter, guiWriteEndpoint);
+            UDPMessage::sendAndClear(*GUISocket, guiWriteEndpoint);
         }
 
 
@@ -230,7 +230,7 @@ namespace bomberman {
         }
 
         void makeGUIConnection(ClientOptions &options) {
-            guiSocketWriter = std::make_unique<udp::socket>(*context, udp::endpoint(udp::v6(), options.port));
+            GUISocket = std::make_unique<udp::socket>(*context, udp::endpoint(udp::v6(), options.port));
             udp::resolver resolver(*context);
             udp::resolver::iterator iterator = resolver.resolve(options.guiIP, options.guiPort);
             guiWriteEndpoint = *iterator;
@@ -244,6 +244,11 @@ namespace bomberman {
             makeServerConnection(options);
             makeGUIConnection(options);
             playerName = options.playerName;
+        }
+
+        ~Client() {
+            GUISocket.close();
+            ServerSocket.close();
         }
 
         void run() {

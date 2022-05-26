@@ -10,7 +10,7 @@
 
 namespace bomberman {
     struct GameEndedMessage : IMessage {
-        GameEndedMessage(socket_t &socket) {
+        explicit GameEndedMessage(socket_t &socket) {
             map_size_t scoresSize;
             read_number_inplace(socket, scoresSize);
             for (map_size_t i = 0; i < scoresSize; ++i) {

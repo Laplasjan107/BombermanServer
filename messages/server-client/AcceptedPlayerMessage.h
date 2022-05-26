@@ -24,12 +24,7 @@ namespace bomberman {
         }
 
         void print() const {
-            using namespace std;
 
-            cout << "Accepted player message:\n";
-            cout << "player id: " << (int) playerId << endl;
-            player.print();
-            cout << endl;
         }
     };
 }

@@ -27,6 +27,7 @@ namespace bomberman {
         std::unordered_set<Position> explosions;
         std::unordered_map<player_id_t, score_t> scores;
         std::unordered_set<player_id_t> destroyedPlayers;
+        std::unordered_set<Position> blocksExploded;
 
         bool isInside(const Position &position) {
             return (position.positionX < mapSettings.sizeX) && (position.positionY < mapSettings.sizeY) &&
@@ -46,7 +47,7 @@ namespace bomberman {
                         break;
 
                     explosions.insert(currentPosition);
-                    if (blocks.contains(currentPosition))
+                    if (blocks.contains(currentPosition) || blocksExploded.contains(currentPosition))
                         break;
                 }
             }
@@ -92,7 +93,8 @@ namespace bomberman {
         void newTurn(game_length_t turnNumber) {
             turn = turnNumber;
             destroyedPlayers = std::unordered_set<player_id_t> {};
-            explosions = std::unordered_set<Position>{};
+            explosions = std::unordered_set<Position> {};
+            blocksExploded = std::unordered_set<Position> {};
             for (auto &bomb: bombs) {
                 bomb.second.timer -= 1;
             }
@@ -100,11 +102,12 @@ namespace bomberman {
 
         void newPlayer(const AcceptedPlayerMessage &accepted) {
             players.insert({accepted.playerId, accepted.player});
-            scores.insert({accepted.playerId, 0});
         }
 
         void startGame(GameStartedMessage &started) {
             running = true;
+            for (const auto& player: started.activePlayers)
+                scores.insert({player.first, 0});
             players = std::move(started.activePlayers);
         }
 

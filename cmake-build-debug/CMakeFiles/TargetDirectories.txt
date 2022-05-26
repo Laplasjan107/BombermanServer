@@ -1,3 +1,3 @@
 /Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug/CMakeFiles/rebuild_cache.dir
 /Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug/CMakeFiles/edit_cache.dir
-/Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug/CMakeFiles/BombermanClient.dir
+/Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug/CMakeFiles/robots-client.dir

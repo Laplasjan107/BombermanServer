@@ -5,21 +5,22 @@
 #ifndef BOMBERMANSERVER_CLIENTOPTIONS_H
 #define BOMBERMANSERVER_CLIENTOPTIONS_H
 
+#include <boost/program_options.hpp>
 #include "common.h"
 #include "types.h"
 
 namespace bomberman {
     struct ClientOptions {
-        std::string     playerName;
-        uint16_t        port;
-        std::string     serverAddress;
-        std::string     displayAddress;
+        std::string playerName;
+        uint16_t port;
+        std::string serverAddress;
+        std::string displayAddress;
 
-        std::string     serverIP;
-        std::string     serverPort;
+        std::string serverIP;
+        std::string serverPort;
 
-        std::string     guiIP;
-        std::string     guiPort;
+        std::string guiIP;
+        std::string guiPort;
 
         struct HelpException : public std::invalid_argument {
             explicit HelpException (const std::string &description) : invalid_argument(description) { }
@@ -30,10 +31,26 @@ namespace bomberman {
         };
 
         ClientOptions(int argumentsCount, char *argumentsTable[]) {
-            playerName = "rtoipK";
-            port = 14008;
-            serverAddress = "students.mimuw.edu.pl:10211";
-            displayAddress = "localhost:12345";
+            using namespace boost::program_options;
+
+            options_description description("Options parser");
+            description.add_options()
+                    ("help,h", "Help request")
+                    ("display-address,d", value<std::string>()->required(), "Port number")
+                    ("player-name,n", value<std::string>()->required(), "Player name")
+                    ("port,p", value<uint16_t>()->required(), "Port number")
+                    ("server-address,s", value<std::string>()->required(), "Server address");
+
+            variables_map programVariables;
+            store(command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
+            if (programVariables.count("help"))
+                throw HelpException("Asked for help message");
+
+            notify(programVariables);
+            displayAddress  = programVariables["display-address"].as<std::string>();
+            serverAddress   = programVariables["server-address"].as<std::string>();
+            playerName      = programVariables["player-name"].as<std::string>();
+            port            = programVariables["port"].as<uint16_t>();
 
             auto slicedServer = sliceAddress(serverAddress);
             auto slicedDisplay = sliceAddress(displayAddress);
@@ -42,29 +59,6 @@ namespace bomberman {
             serverPort = slicedServer.second;
             guiIP = slicedDisplay.first;
             guiPort = slicedDisplay.second;
-
-            std::cerr << serverIP << " " << serverPort << std::endl;
-            std::cerr << guiIP << " " << guiPort << std::endl;
-            /*
-            po::options_description description("Options parser");
-            description.add_options()
-                    ("help,h", "Help request")
-                    ("display-address,d", po::value<std::string>()->required(), "Port number")
-                    ("player-name,n", po::value<std::string>()->required(), "Player name")
-                    ("port,p", po::value<uint16_t>()->required(), "Port number")
-                    ("server-address,s", po::value<std::string>()->required(), "Server address");
-
-            po::variables_map programVariables;
-            po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(), programVariables);
-            if (programVariables.count("help"))
-                throw HelpException("Asked for help message");
-
-            po::notify(programVariables);
-            displayAddress  = programVariables["display-address"].as<std::string>();
-            serverAddress   = programVariables["server-address"].as<std::string>();
-            playerName      = programVariables["player-name"].as<std::string>();
-            port            = programVariables["port"].as<uint16_t>();
-             */
         }
 
     private:

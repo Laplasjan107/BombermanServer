@@ -18,22 +18,6 @@ namespace bomberman {
         std::vector<Position> blocksDestroyed;
 
         BombExplodedEvent(socket_t &socket) {
-            /*
-            read_number_inplace(socket, bombId);
-
-            list_size_t robotsListSize;
-            read_number_inplace(socket, robotsListSize);
-            for (list_size_t i = 0; i < robotsListSize; ++i) {
-                player_id_t destroyed;
-                read_number_inplace(socket, destroyed);
-                robotsDestroyed.push_back(destroyed);
-            }
-
-            list_size_t blocksListSize;
-            for (list_size_t i = 0; i < blocksListSize; ++i) {
-                blocksDestroyed.emplace_back(socket);
-            }
-             */
             read_number_inplace(socket, bombId);
             list_size_t destroyedPlayersCount;
             read_number_inplace(socket, destroyedPlayersCount);

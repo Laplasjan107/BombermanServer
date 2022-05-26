@@ -78,7 +78,7 @@ namespace bomberman {
                         }
                         break;
                     case (static_cast<uint8_t>(InputMessageType::Move)):
-                        if (messageSize == 2 && GUIBuffer < 4) {
+                        if (messageSize == 2 && GUIBuffer[2] < 4) {
                             if (game->isRunning()) {
                                 handleMove();
                             }

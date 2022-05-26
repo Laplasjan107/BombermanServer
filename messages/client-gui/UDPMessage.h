@@ -65,43 +65,11 @@ namespace bomberman {
             }
         }
 
-        static void loadPlayersPositions(const std::unordered_map<player_id_t, Position> &map) {
-            loadNumber((map_size_t) map.size());
-            for (auto& player: map) {
-                loadNumber((player_id_t) player.first);
-                loadPosition(player.second);
-            }
-        }
-
-        static void loadPositionsList(const std::unordered_set<Position> &positions) {
-            loadNumber((list_size_t) positions.size());
-            for (auto &e : positions)
-                loadPosition(e);
-        }
-
-        static void loadBomb(const Bomb &bomb) {
-            loadPosition(bomb.bombPosition);
-            loadNumber(bomb.timer);
-        }
-
-        static void loadBombsList(const std::unordered_map<bomb_id_t, Bomb> &bombs) {
-            loadNumber((list_size_t) bombs.size());
-            for (auto &e : bombs)
-                loadBomb(e.second);
-        }
-
         static void loadPosition(const Position &position) {
             loadNumber(position.positionX);
             loadNumber(position.positionY);
         }
 
-        static void loadScores(const std::unordered_map<player_id_t, score_t> &scores) {
-            loadNumber((list_size_t) scores.size());
-            for (auto &e: scores) {
-                loadNumber(e.first);
-                loadNumber(e.second);
-            }
-        }
 
     public:
         static UDPMessage& getInstance() {
@@ -178,10 +146,6 @@ namespace bomberman {
         }
 
         static void sendAndClear(udp::socket &socket, udp::endpoint& endpoint) {
-		std::cerr << "TO GUI:\n";
-		for (int i = 0; i < loaded; ++i)
-			std::cerr << (int) bufferUDP[i] << ' ';
-		std::cerr << std::endl;
             socket.send_to(boost::asio::buffer(bufferUDP, loaded), endpoint);
             clearBuffer();
         }

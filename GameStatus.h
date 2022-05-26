@@ -28,16 +28,15 @@ namespace bomberman {
         std::unordered_map<player_id_t, score_t> scores;
         std::unordered_set<player_id_t> destroyedPlayers;
 
-        bool isInside(const Position &position) {
-            return (position.positionX < mapSettings.sizeX) && (position.positionY < mapSettings.sizeY) &&
-                   (position.positionX >= 0) && (position.positionY >= 0);
+        bool isInside(const Position &position) const {
+            return (position.positionX < mapSettings.sizeX) && (position.positionY < mapSettings.sizeY);
         }
 
         void renderExplosion(const Position &position) {
-            static const std::vector<Position> directions {Position {1, 0},
-                                                           Position {0, 1},
-                                                           Position {(board_size_t) -1, 0},
-                                                           Position {0, (board_size_t) -1}};
+            static const std::vector<Position> directions{Position{1, 0},
+                                                          Position{0, 1},
+                                                          Position{(board_size_t) -1, 0},
+                                                          Position{0, (board_size_t) -1}};
 
             for (auto &versor: directions) {
                 for (explosion_radius_t i = 0; i <= mapSettings.explosionRadius; ++i) {
@@ -54,31 +53,31 @@ namespace bomberman {
 
         void writeGameToUDP() {
             UDPMessage::getInstance()
-                << static_cast<uint8_t>(DrawMessageType::Game)
-                << mapSettings.serverName
-                << mapSettings.sizeX
-                << mapSettings.sizeY
-                << mapSettings.gameLength
-                << turn
-                << players
-                << positions
-                << blocks
-                << bombs
-                << explosions
-                << scores;
+                    << static_cast<uint8_t>(DrawMessageType::Game)
+                    << mapSettings.serverName
+                    << mapSettings.sizeX
+                    << mapSettings.sizeY
+                    << mapSettings.gameLength
+                    << turn
+                    << players
+                    << positions
+                    << blocks
+                    << bombs
+                    << explosions
+                    << scores;
         }
 
         void writeLobbyToUDP() {
             UDPMessage::getInstance()
-                << static_cast<uint8_t>(DrawMessageType::Lobby)
-                << mapSettings.serverName
-                << mapSettings.playersCount
-                << mapSettings.sizeX
-                << mapSettings.sizeY
-                << mapSettings.gameLength
-                << mapSettings.explosionRadius
-                << mapSettings.bombTimer
-                << players;
+                    << static_cast<uint8_t>(DrawMessageType::Lobby)
+                    << mapSettings.serverName
+                    << mapSettings.playersCount
+                    << mapSettings.sizeX
+                    << mapSettings.sizeY
+                    << mapSettings.gameLength
+                    << mapSettings.explosionRadius
+                    << mapSettings.bombTimer
+                    << players;
         }
 
     public:
@@ -89,12 +88,13 @@ namespace bomberman {
             mapSettings = hello.mapSettings;
         }
 
-	std::unordered_set<Position> explodedBlocks;
+        std::unordered_set<Position> explodedBlocks;
+
         void newTurn(game_length_t turnNumber) {
             turn = turnNumber;
-            destroyedPlayers = std::unordered_set<player_id_t> {};
-            explosions = std::unordered_set<Position> {};
-		explodedBlocks = std::unordered_set<Position> {};
+            destroyedPlayers = std::unordered_set<player_id_t>{};
+            explosions = std::unordered_set<Position>{};
+            explodedBlocks = std::unordered_set<Position>{};
             for (auto &bomb: bombs) {
                 bomb.second.timer -= 1;
             }
@@ -103,19 +103,17 @@ namespace bomberman {
         void newPlayer(const AcceptedPlayerMessage &accepted) {
             players.insert({accepted.playerId, accepted.player});
             scores.insert({accepted.playerId, 0});
-		std::cerr << scores.size() << std::endl;
         }
 
         void startGame(GameStartedMessage &started) {
             running = true;
-		for (auto player: started.activePlayers)
-                        scores.insert({player.first, 0});
-                std::cerr << scores.size() << std::endl;
+            for (const auto& player: started.activePlayers)
+                scores.insert({player.first, 0});
             players = std::move(started.activePlayers);
         }
 
-        void placeBomb(const BombPlacedEvent& bombPlaced) {
-            bombs.insert({bombPlaced.bombId, Bomb {bombPlaced.position, mapSettings.bombTimer}});
+        void placeBomb(const BombPlacedEvent &bombPlaced) {
+            bombs.insert({bombPlaced.bombId, Bomb{bombPlaced.position, mapSettings.bombTimer}});
         }
 
         void explodeBomb(const BombExplodedEvent &bombExplodedEvent) {
@@ -124,7 +122,7 @@ namespace bomberman {
             bombs.erase(bombExplodedEvent.bombId);
             for (auto block: bombExplodedEvent.blocksDestroyed) {
                 blocks.erase(block);
-		explodedBlocks.insert(block);
+                explodedBlocks.insert(block);
             }
 
             for (auto player: bombExplodedEvent.robotsDestroyed) {
@@ -144,10 +142,10 @@ namespace bomberman {
 
             running = false;
             blocks = unordered_set<Position>{};
-            bombs = unordered_map<bomb_id_t, Bomb> {};
-            explosions = unordered_set<Position> {};
-            scores = unordered_map<player_id_t, score_t> {};
-            players = unordered_map<player_id_t, Player> {};
+            bombs = unordered_map<bomb_id_t, Bomb>{};
+            explosions = unordered_set<Position>{};
+            scores = unordered_map<player_id_t, score_t>{};
+            players = unordered_map<player_id_t, Player>{};
         }
 
         bool isRunning() const {
@@ -162,8 +160,7 @@ namespace bomberman {
             UDPMessage::clearBuffer();
             if (running) {
                 writeGameToUDP();
-            }
-            else {
+            } else {
                 writeLobbyToUDP();
             }
         }

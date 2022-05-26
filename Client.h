@@ -37,11 +37,10 @@ namespace bomberman {
         std::unique_ptr<GameStatus> game;
 
         [[noreturn]] void guiConnection() {
-            boost::array<char, 10> recv_buf{};
             udp::endpoint remote_endpoint;
 
             while (true) {
-                auto r = guiSocketWriter->receive_from(boost::asio::buffer(recv_buf), remote_endpoint);
+                auto r = guiSocketWriter->receive_from(boost::asio::buffer(GUIBuffer), remote_endpoint);
                 bool sendJoin = false;
 
                 if (recv_buf[0] == 0 && r == 1) {
@@ -52,7 +51,7 @@ namespace bomberman {
                     else {
                         sendJoin = true;
                     };
-                } else if (recv_buf[0] == 1 && r == 1) {
+                } else if (GUIBuffer[0] == 1 && r == 1) {
                     if (game->isRunning()) {
                         char place_block[1] = {2};
                         boost::asio::write(*serverSocket, boost::asio::buffer(place_block, 1));
@@ -60,10 +59,10 @@ namespace bomberman {
                     else {
                         sendJoin = true;
                     };
-                } else if (recv_buf[0] == 2 && r == 2) {
+                } else if (GUIBuffer[0] == 2 && r == 2) {
                     if (game->isRunning()) {
                         char move[2] = {3, 0};
-                        move[1] = recv_buf[1];
+                        move[1] = GUIBuffer[1];
                         boost::asio::write(*serverSocket, boost::asio::buffer(move, 2));
                     }
                     else {
@@ -71,7 +70,7 @@ namespace bomberman {
                     };
                 }
 
-                if (valid && !game->isRunning()) {
+                if (sendJoin) {
                     boost::array<uint8_t, 2> m{0, (uint8_t) playerName.length()};
                     boost::asio::write(*serverSocket, boost::asio::buffer(m));
                     boost::asio::write(*serverSocket, boost::asio::buffer(playerName));

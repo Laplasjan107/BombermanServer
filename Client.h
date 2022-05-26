@@ -26,7 +26,7 @@ namespace bomberman {
 
     class Client {
         static const constexpr size_t GUIBufferSize = 10;
-        static const constexpr size_t maxDirection = 4;
+        static const constexpr char maxDirection = 4;
         static const constexpr size_t moveSize = 2;
         static const constexpr size_t moveDirectionPosition = 1;
 

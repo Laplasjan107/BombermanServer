@@ -12,12 +12,13 @@
 #include "messages/client-gui/UDPMessage.h"
 #include <unordered_set>
 #include <vector>
+#include <atomic>
 #include "event/events.h"
 
 namespace bomberman {
     class GameStatus {
         MapSettings mapSettings;
-        bool running = false;
+        std::atomic<bool> running {false};
 
         game_length_t turn{};
         players_t players;

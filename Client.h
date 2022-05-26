@@ -28,6 +28,7 @@ namespace bomberman {
     class Client {
         static const constexpr size_t GUIBufferSize = 10;
         boost::array<char, GUIBufferSize> GUIBuffer;
+
         std::string playerName;
         std::unique_ptr<boost::asio::io_context> context;
         std::unique_ptr<tcp::socket> serverSocket;
@@ -35,18 +36,24 @@ namespace bomberman {
         udp::endpoint guiWriteEndpoint;
         std::unique_ptr<GameStatus> game;
 
+        void sendJoinToServer() {
+            boost::array<uint8_t, 2> nameHeader{static_cast<uint8_t>(PlayerAction::Join), (uint8_t) playerName.length()};
+            boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
+            boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
+        }
+
         void handlePlaceBomb() {
-            char place_bomb[1] = {1};
+            char place_bomb[1] = {static_cast<uint8_t>(PlayerAction::PlaceBomb)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_bomb, 1));
         }
 
         void handlePlaceBlock() {
-            char place_block[1] = {2};
+            char place_block[1] = {static_cast<uint8_t>(PlayerAction::PlaceBlock)};
             boost::asio::write(*serverSocket, boost::asio::buffer(place_block, 1));
         }
 
         void handleMove() {
-            char move[2] = {3, 0};
+            char move[2] = {static_cast<uint8_t>(PlayerAction::Move), 0};
             move[1] = GUIBuffer[1];
             boost::asio::write(*serverSocket, boost::asio::buffer(move, 2));
         }
@@ -88,12 +95,6 @@ namespace bomberman {
                         }
                 }
             }
-        }
-
-        void sendJoinToServer() {
-            boost::array<uint8_t, 2> nameHeader{0, (uint8_t) playerName.length()};
-            boost::asio::write(*serverSocket, boost::asio::buffer(nameHeader));
-            boost::asio::write(*serverSocket, boost::asio::buffer(playerName));
         }
 
         void sendGameToGUI() {

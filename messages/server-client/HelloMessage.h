@@ -13,7 +13,7 @@ namespace bomberman {
     struct HelloMessage : IMessage {
         MapSettings mapSettings;
 
-        explicit HelloMessage(socket_t &socket) : mapSettings(socket) { }
+        explicit HelloMessage(socket_t &socket) : mapSettings(socket) {}
 
         void print() const {
             using namespace std;

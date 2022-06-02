@@ -134,7 +134,7 @@ namespace bomberman {
             return message;
         }
 
-        friend UDPMessage& operator<<(UDPMessage &message, const std::unordered_map<bomb_id_t , Bomb> &bombs) {
+        friend UDPMessage& operator<<(UDPMessage &message, const std::unordered_map<bomb_id_t, Bomb> &bombs) {
             message << (list_size_t) bombs.size();
             for (auto &element: bombs)
                 message << element.second;
@@ -146,10 +146,29 @@ namespace bomberman {
         }
 
         static void sendAndClear(udp::socket &socket, udp::endpoint& endpoint) {
+            std::cerr << "[debug] Sending to GUI:\n";
+            for (int i = 0; i < loaded; ++i)
+                std::cerr << (int) *((uint8_t*) bufferUDP + i) << ' ';
+            std::cerr << "\n";
+
             socket.send_to(boost::asio::buffer(bufferUDP, loaded), endpoint);
             clearBuffer();
         }
 
+        static auto getBuffer() {
+            std::vector<uint8_t> send {std::begin(bufferUDP), std::begin(bufferUDP) + loaded};
+            clearBuffer();
+            return send;
+        }
+
+        template<typename T>
+        requires loadable<UDPMessage, T>
+        static void loadAtIndex(size_t index, T element) {
+            auto saveLoaded = loaded;
+            loaded = index;
+            getInstance() << element;
+            loaded = saveLoaded;
+        }
     };
 
     size_t UDPMessage::loaded = 0;

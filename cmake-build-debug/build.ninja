@@ -40,6 +40,41 @@ include CMakeFiles/rules.ninja
 # Logical path to working directory; prefix for absolute paths.
 
 cmake_ninja_workdir = /Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug/
+# =============================================================================
+# Object build statements for EXECUTABLE target server
+
+
+#############################################
+# Order-only phony target for server
+
+build cmake_object_order_depends_target_server: phony || CMakeFiles/server.dir
+
+build CMakeFiles/server.dir/main-server.cpp.o: CXX_COMPILER__server_Debug /Users/laplasjan/CLionProjects/BombermanServer/main-server.cpp || cmake_object_order_depends_target_server
+  DEFINES = -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_NO_LIB
+  DEP_FILE = CMakeFiles/server.dir/main-server.cpp.o.d
+  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
+  INCLUDES = -I/Users/laplasjan/CLionProjects/BombermanServer -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/server.dir
+  OBJECT_FILE_DIR = CMakeFiles/server.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target server
+
+
+#############################################
+# Link the executable server
+
+build server: CXX_EXECUTABLE_LINKER__server_Debug CMakeFiles/server.dir/main-server.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
+  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
+  LINK_FLAGS = -Wl,-rpath -Wl,/opt/gcc-11.2/lib64
+  LINK_LIBRARIES = /opt/homebrew/lib/libboost_program_options-mt.dylib
+  OBJECT_DIR = CMakeFiles/server.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = server
+  TARGET_PDB = server.dbg
+
 
 #############################################
 # Utility command for rebuild_cache
@@ -64,6 +99,41 @@ build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
 build edit_cache: phony CMakeFiles/edit_cache.util
 
 # =============================================================================
+# Object build statements for EXECUTABLE target robots-server
+
+
+#############################################
+# Order-only phony target for robots-server
+
+build cmake_object_order_depends_target_robots-server: phony || CMakeFiles/robots-server.dir
+
+build CMakeFiles/robots-server.dir/robots-server.cpp.o: CXX_COMPILER__robots-server_Debug /Users/laplasjan/CLionProjects/BombermanServer/robots-server.cpp || cmake_object_order_depends_target_robots-server
+  DEFINES = -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_NO_LIB
+  DEP_FILE = CMakeFiles/robots-server.dir/robots-server.cpp.o.d
+  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
+  INCLUDES = -I/Users/laplasjan/CLionProjects/BombermanServer -isystem /opt/homebrew/include
+  OBJECT_DIR = CMakeFiles/robots-server.dir
+  OBJECT_FILE_DIR = CMakeFiles/robots-server.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target robots-server
+
+
+#############################################
+# Link the executable robots-server
+
+build robots-server: CXX_EXECUTABLE_LINKER__robots-server_Debug CMakeFiles/robots-server.dir/robots-server.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
+  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
+  LINK_FLAGS = -Wl,-rpath -Wl,/opt/gcc-11.2/lib64
+  LINK_LIBRARIES = /opt/homebrew/lib/libboost_program_options-mt.dylib
+  OBJECT_DIR = CMakeFiles/robots-server.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = robots-server
+  TARGET_PDB = robots-server.dbg
+
+# =============================================================================
 # Object build statements for EXECUTABLE target robots-client
 
 
@@ -75,7 +145,7 @@ build cmake_object_order_depends_target_robots-client: phony || CMakeFiles/robot
 build CMakeFiles/robots-client.dir/main.cpp.o: CXX_COMPILER__robots-client_Debug /Users/laplasjan/CLionProjects/BombermanServer/main.cpp || cmake_object_order_depends_target_robots-client
   DEFINES = -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_NO_LIB
   DEP_FILE = CMakeFiles/robots-client.dir/main.cpp.o.d
-  FLAGS = -Wall -Wextra -Werror -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
+  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
   INCLUDES = -I/Users/laplasjan/CLionProjects/BombermanServer -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/robots-client.dir
   OBJECT_FILE_DIR = CMakeFiles/robots-client.dir
@@ -89,7 +159,7 @@ build CMakeFiles/robots-client.dir/main.cpp.o: CXX_COMPILER__robots-client_Debug
 # Link the executable robots-client
 
 build robots-client: CXX_EXECUTABLE_LINKER__robots-client_Debug CMakeFiles/robots-client.dir/main.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
-  FLAGS = -Wall -Wextra -Werror -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
+  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
   LINK_FLAGS = -Wl,-rpath -Wl,/opt/gcc-11.2/lib64
   LINK_LIBRARIES = /opt/homebrew/lib/libboost_program_options-mt.dylib
   OBJECT_DIR = CMakeFiles/robots-client.dir
@@ -109,7 +179,7 @@ build robots-client: CXX_EXECUTABLE_LINKER__robots-client_Debug CMakeFiles/robot
 #############################################
 # Folder: /Users/laplasjan/CLionProjects/BombermanServer/cmake-build-debug
 
-build all: phony robots-client
+build all: phony server robots-server robots-client
 
 # =============================================================================
 # Built-in targets

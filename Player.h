@@ -15,6 +15,7 @@ namespace bomberman {
     struct Player {
         string playerName;
         string playerAddress;
+        string buffer;
 
         Player() = default;
 
@@ -24,6 +25,17 @@ namespace bomberman {
         }
 
         Player(string name, string address) : playerName(std::move(name)), playerAddress(std::move(address)) {}
+
+        const string &toBuffer() {
+            if (buffer.empty()) {
+                buffer.append(1, (char) playerName.size());
+                buffer.append(playerName);
+                buffer.append(1, (char) playerAddress.size());
+                buffer.append(playerAddress);
+            }
+
+            return buffer;
+        }
 
         void print() const {
         }

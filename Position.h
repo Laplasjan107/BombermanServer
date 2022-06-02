@@ -14,14 +14,14 @@ namespace bomberman {
         board_size_t positionX{};
         board_size_t positionY{};
 
-        Position() = default;
+        constexpr Position() = default;
 
         explicit Position(socket_t &socket) {
             read_number_inplace(socket, positionX);
             read_number_inplace(socket, positionY);
         }
 
-        Position(board_size_t x, board_size_t y) : positionX(x), positionY(y) {
+        constexpr Position(board_size_t x, board_size_t y) : positionX(x), positionY(y) {
         }
 
         bool operator==(const Position &other) const {

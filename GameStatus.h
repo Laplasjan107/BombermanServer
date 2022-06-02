@@ -53,6 +53,12 @@ namespace bomberman {
         }
 
         void writeGameToUDP() {
+            std::cerr << "[debug] Writing game to UDP:\n";
+            std::cerr << mapSettings.serverName << std::endl;
+            for (auto &player: players) {
+                std::cerr << (int) player.first << " " << player.second.playerName << player.second.playerAddress << "\n";
+            }
+
             UDPMessage::getInstance()
                     << static_cast<uint8_t>(DrawMessageType::Game)
                     << mapSettings.serverName

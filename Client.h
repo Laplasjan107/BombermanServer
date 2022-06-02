@@ -112,16 +112,24 @@ namespace bomberman {
 
         void handleHelloMessage() {
             auto hello = HelloMessage(*serverSocket);
+            std::cerr << "[debug] Hello message received\n";
             game->initializeGame(hello);
         }
 
         void handleAcceptedPlayerMessage() {
             auto accepted = AcceptedPlayerMessage(*serverSocket);
+            std::cerr << "[debug] Accepted player received: "
+                << (int) accepted.playerId << " " << accepted.player.playerName << " "
+                << accepted.player.playerAddress << "\n";
             game->newPlayer(accepted);
         }
 
         void handleGameStartedMessage() {
             auto started = GameStartedMessage(*serverSocket);
+            std::cerr << "[debug] Game started received: ";
+            for (auto e: started.activePlayers) {
+                std::cerr << (int) e.first << " " << e.second.playerName << " " << e.second.playerAddress << "\n";
+            }
             game->startGame(started);
         }
 
@@ -136,10 +144,12 @@ namespace bomberman {
         }
 
         void handlePlayerMovedEvent() {
+            std::cerr << "[debug] Got player moved\n";
             player_id_t playerId;
             read_number_inplace(*serverSocket, playerId);
             Position playerPosition{*serverSocket};
             game->movePlayer(playerId, playerPosition);
+            std::cerr << "[debug] Player id = " << (int) playerId << ", position = " << playerPosition << "\n";
         }
 
         void handleBlockPlacedEvent() {
@@ -148,6 +158,7 @@ namespace bomberman {
         }
 
         void handleEvent() {
+            std::cerr << "[debug] Got event\n";
             message_header_t eventHeader;
             read_number_inplace(*serverSocket, eventHeader);
             switch (eventHeader) {
@@ -169,13 +180,16 @@ namespace bomberman {
         }
 
         void handleTurnMessage() {
+            std::cerr << "[debug] Turn message received.\n";
             game_length_t turnNumber;
             read_number_inplace(*serverSocket, turnNumber);
+            std::cerr << "[debug] Turn number: " << turnNumber << "\n";
 
             game->newTurn(turnNumber);
 
             list_size_t eventsNumber;
             read_number_inplace(*serverSocket, eventsNumber);
+            std::cerr << "[debug] Turn events: " << eventsNumber << "\n";
 
             for (list_size_t i = 0; i < eventsNumber; ++i) {
                 handleEvent();

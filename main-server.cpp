@@ -271,7 +271,7 @@ namespace bomberman {
 
         void calculateMovesOutcome() {
             std::cerr << "[debug] Calculate moves outcome: " << players.size() << "\n";
-            for (auto &player: players) {
+            for (const auto &player: players) {
                 auto playerId = player.first;
                 std::cerr << "[debug] Now player " << (int) playerId << "\n";
                 if (_alive.contains(playerId)) {
@@ -349,7 +349,8 @@ namespace bomberman {
             _scores.clear();
             _allAcceptedPlayers.clear();
             _gameStarted.clear();
-            _bombs.clear();
+            for (auto &bombBucket: _bombs)
+                bombBucket.clear();
             _alive.clear();
             turns.clear();
             clearMoves();

@@ -54,7 +54,7 @@ namespace bomberman {
             playerName = programVariables["player-name"].as<std::string>();
             port = programVariables["port"].as<uint16_t>();
             */
-            serverAddress = "localhost:12345";
+            serverAddress = "students.mimuw.edu.pl:12345";
             displayAddress = "localhost:14008";
             port = 54321;
             playerName = "rakrht";

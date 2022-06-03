@@ -42,10 +42,10 @@ namespace bomberman {
             playerCount = 2;
             sizeX = 15;
             sizeY = 15;
-            gameLength = 25;
+            gameLength = 500;
             explosionRadius = 3;
             bombTimer = 4;
-            turnTimer = 500;
+            turnTimer = 200;
         }
     };
 

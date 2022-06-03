@@ -88,7 +88,7 @@ namespace bomberman {
            *toData = number;
            loaded += sizeof(T);
 
-           std::cerr << "[debug] Loaded number: " << number << " " << "buffer:";
+           std::cerr << "[debug] Loaded number: " << (int) number << " " << "buffer:";
            for (int i = 0; i < loaded; ++i)
                std::cerr << (int) *((uint8_t *) bufferUDP + i) << " ";
            std::cerr << "\n";

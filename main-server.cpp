@@ -108,7 +108,6 @@ namespace bomberman {
                 Player newPlayer{std::move(playerName), std::move(address)};
                 players.insert({playerId, newPlayer});
 
-                std::vector<uint8_t> accepted;
                 UDPMessage::clearBuffer();
                 UDPMessage::getInstance() << acceptedHeader
                                           << playerId
@@ -123,11 +122,11 @@ namespace bomberman {
                         recentlyAcceptedPlayer.end());
 
                 std::cerr << "[debug] send accepted to all\n";
-                for (auto e: accepted)
+                for (auto e: recentlyAcceptedPlayer)
                     std::cerr << (int) e << ' ';
                 std::cerr << "\n";
 
-                _server->sendToAll(accepted);
+                _server->sendToAll(recentlyAcceptedPlayer);
                 std::cerr << "[debug] Ready " << players.size() << '/' << (int) _gameOptions.playerCount << '\n';
                 if (players.size() == _gameOptions.playerCount) {
                     startGame();
@@ -240,7 +239,7 @@ namespace bomberman {
             std::unordered_set<player_id_t> playersDestroyed;
             std::unordered_set<Position> blocksDestroyed;
             for (const auto &versor: versors) {
-                for (explosion_radius_t i = 0; i < _gameOptions.explosionRadius; ++i) {
+                for (explosion_radius_t i = 0; i <= _gameOptions.explosionRadius; ++i) {
                     Position current = bomb.first.bombPosition + versor * i;
                     if (!isInside(current))
                         break;

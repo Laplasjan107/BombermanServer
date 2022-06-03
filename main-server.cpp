@@ -111,7 +111,8 @@ namespace bomberman {
                 UDPMessage::clearBuffer();
                 UDPMessage::getInstance() << acceptedHeader
                                           << playerId
-                                          << newPlayer.toBuffer();
+                                          << newPlayer.playerName
+                                          << newPlayer.playerAddress;
                 auto recentlyAcceptedPlayer = UDPMessage::getBuffer();
                 //_allAcceptedPlayers.insert(_allAcceptedPlayers.end(), recentlyAcceptedPlayer.begin(),
                 //                           recentlyAcceptedPlayer.end());
@@ -220,7 +221,6 @@ namespace bomberman {
             if (turn == _gameOptions.gameLength) {
                 endGame();
             }
-
 
             ++turn;
         }

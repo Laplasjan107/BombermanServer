@@ -39,13 +39,13 @@ namespace bomberman {
 
         GameOptions() {
             serverName = "to_jest_serwer";
-            playerCount = 1;
-            sizeX = 5;
-            sizeY = 5;
+            playerCount = 2;
+            sizeX = 15;
+            sizeY = 15;
             gameLength = 25;
             explosionRadius = 3;
             bombTimer = 4;
-            turnTimer = 1000;
+            turnTimer = 500;
         }
     };
 
@@ -113,13 +113,18 @@ namespace bomberman {
                                           << playerId
                                           << newPlayer.toBuffer();
                 auto recentlyAcceptedPlayer = UDPMessage::getBuffer();
-                _allAcceptedPlayers.insert(_allAcceptedPlayers.end(), recentlyAcceptedPlayer.begin(),
-                                           recentlyAcceptedPlayer.end());
+                //_allAcceptedPlayers.insert(_allAcceptedPlayers.end(), recentlyAcceptedPlayer.begin(),
+                //                           recentlyAcceptedPlayer.end());
 
                 _allAcceptedPlayers.insert(
                         _allAcceptedPlayers.end(),
                         recentlyAcceptedPlayer.begin(),
                         recentlyAcceptedPlayer.end());
+
+                std::cerr << "[debug] new player buffer\n";
+                for (auto e: newPlayer.toBuffer())
+                    std::cerr << (int) e << ' ';
+                std::cerr << "\n";
 
                 std::cerr << "[debug] send accepted to all\n";
                 for (auto e: recentlyAcceptedPlayer)

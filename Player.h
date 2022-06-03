@@ -28,9 +28,9 @@ namespace bomberman {
 
         const string &toBuffer() {
             if (buffer.empty()) {
-                buffer.append(1, (char) playerName.size());
+                buffer.append(1, (char) playerName.length());
                 buffer.append(playerName);
-                buffer.append(1, (char) playerAddress.size());
+                buffer.append(1, (char) playerAddress.length());
                 buffer.append(playerAddress);
             }
 

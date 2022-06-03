@@ -90,7 +90,7 @@ namespace bomberman {
 
            std::cerr << "[debug] Loaded number: " << number << " " << "buffer:";
            for (int i = 0; i < loaded; ++i)
-               std::cerr << (int) *((uint8_t *) bufferUDP + loaded);
+               std::cerr << (int) *((uint8_t *) bufferUDP + i) << " ";
            std::cerr << "\n";
 
            return message;

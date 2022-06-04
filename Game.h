@@ -86,6 +86,7 @@ namespace bomberman {
                 static const uint8_t acceptedHeader = 1;
                 Player newPlayer{std::move(playerName), std::move(address)};
                 players.insert({playerId, newPlayer});
+                _playerIds.insert(playerId);
 
                 UDPMessage::clearBuffer();
                 UDPMessage::getInstance() << acceptedHeader
@@ -159,16 +160,9 @@ namespace bomberman {
             size_t explodingId = turn % _gameOptions.bombTimer;
             UDPMessage::clearBuffer();
 
-
-            //UDPMessage::getInstance()
-            //        << (uint8_t) 3              // turn header
-            //        << turn
-            //        << events;                 // Placeholder, until the number of events is determined.
-
             for (auto &bomb: _bombs[explodingId]) {
                 calculateBombOutcome(bomb);
             }
-
             _bombs[explodingId].clear();
 
             calculateMovesOutcome();
@@ -176,14 +170,6 @@ namespace bomberman {
                 generateBlocks();
             }
 
-            //UDPMessage::loadAtIndex(sizeof(uint8_t) + sizeof(turn), events);
-
-            //auto turnMessage = UDPMessage::getBuffer();
-            //turns.insert(turns.end(), turnMessage.begin(), turnMessage.end());
-
-            //_allTurns.push_back(_events);
-
-            //_server->sendToAll(turnMessage)
             UDPMessage::getInstance()
                     << (uint8_t) 3
                     << turn
@@ -232,12 +218,14 @@ namespace bomberman {
 
                     for (auto &player: _playerPositions) {
                         if (player.second == current) {
+                            std::cerr << "[debug] Player destroyed, id = " << (int) player.first << "\n";
                             playersDestroyed.insert(player.first);
                             _playersDestroyer.insert(player.first);
                         }
                     }
 
                     if (_blocks.contains(current)) {
+                        std::cerr << "[debug] Block destroyed " << current << "\n";
                         blocksDestroyed.insert(current);
                         _blocks.insert(current);
                         break;
@@ -254,18 +242,30 @@ namespace bomberman {
         }
 
         void generateBlocks() {
-
+            for (int i = 0; i < 10; ++i) {
+                auto newBlock = randomPosition();
+                if (!_blocks.contains(newBlock))
+                {
+                    _blocks.insert(newBlock);
+                    loadPlacedBlockEvent(newBlock);
+                }
+            }
         }
 
         void calculateMovesOutcome() {
             std::cerr << "[debug] Calculate moves outcome: " << players.size() << "\n";
-            for (const auto &player: players) {
-                auto playerId = player.first;
+
+            for (const auto playerId: _playerIds) {
                 std::cerr << "[debug] Now player " << (int) playerId << "\n";
+
                 if (_alive.contains(playerId)) {
                     if (_newPlayerPosition.contains(playerId)) {
-                        _playerPositions[playerId] = _newPlayerPosition[playerId];
-                        loadPlayerMovedEvent(playerId);
+                        if (isInside(_newPlayerPosition[playerId]) &&
+                                !_blocks.contains(_newPlayerPosition[playerId]))
+                        {
+                            _playerPositions[playerId] = _newPlayerPosition[playerId];
+                            loadPlayerMovedEvent(playerId);
+                        }
                     } else if (_newBlock.contains(playerId)) {
                         auto placed = _newBlock[playerId];
                         if (!_blocks.contains(placed)) {
@@ -341,6 +341,7 @@ namespace bomberman {
             _allAcceptedPlayers.clear();
             _gameStarted.clear();
             _allTurns.clear();
+            _playerIds.clear();
             for (auto &bombBucket: _bombs)
                 bombBucket.clear();
             _alive.clear();
@@ -352,6 +353,7 @@ namespace bomberman {
         GameOptions _gameOptions;
         bool _isRunning;
         players_t players;
+        std::set<player_id_t>_playerIds;
         std::vector<uint8_t> _helloBuffer;
         std::vector<uint8_t> _allAcceptedPlayers;
         std::vector<uint8_t> _gameStarted;

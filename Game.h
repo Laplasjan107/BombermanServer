@@ -183,8 +183,6 @@ namespace bomberman {
 
             //_allTurns.push_back(_events);
 
-            doCleanUp();
-
             //_server->sendToAll(turnMessage)
             UDPMessage::getInstance()
                     << (uint8_t) 3
@@ -198,6 +196,7 @@ namespace bomberman {
             for (auto &event: _events)
                 _allTurns.push_back(event);
 
+            doCleanUp();
             ++turn;
 
             if (turn == _gameOptions.gameLength) {

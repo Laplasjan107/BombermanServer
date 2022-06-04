@@ -26,6 +26,9 @@ namespace bomberman {
     using list_size_t = map_size_t;
     using bomb_id_t = uint32_t;
     using score_t = uint32_t;
+
+    using event_message = std::vector<uint8_t>;
+    using turn_message = std::vector<event_message>;
 }
 
 #endif //BOMBERMANSERVER_TYPES_H

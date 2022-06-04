@@ -227,7 +227,7 @@ namespace bomberman {
                     if (_blocks.contains(current)) {
                         std::cerr << "[debug] Block destroyed " << current << "\n";
                         blocksDestroyed.insert(current);
-                        _blocks.insert(current);
+                        _blocksDestroyed.insert(current);
                         break;
                     }
                 }

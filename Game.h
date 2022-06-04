@@ -192,8 +192,6 @@ namespace bomberman {
 
         void doCleanUp() {
             for (const auto &dead: _playersDestroyer) {
-                _alive.erase(dead);
-                _playerPositions.erase(dead);
                 ++_scores[dead];
             }
 
@@ -262,8 +260,7 @@ namespace bomberman {
                 if (_alive.contains(playerId)) {
                     if (_newPlayerPosition.contains(playerId)) {
                         if (isInside(_newPlayerPosition[playerId]) &&
-                                !_blocks.contains(_newPlayerPosition[playerId]) &&
-                                    _alive.contains(playerId))
+                                !_blocks.contains(_newPlayerPosition[playerId]))
                         {
                             _playerPositions[playerId] = _newPlayerPosition[playerId];
                             loadPlayerMovedEvent(playerId);

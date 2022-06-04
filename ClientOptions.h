@@ -55,6 +55,7 @@ namespace bomberman {
             port = programVariables["port"].as<uint16_t>();
             */
             serverAddress = "students.mimuw.edu.pl:12345";
+            //serverAddress = "students.mimuw.edu.pl:20002";
             displayAddress = "localhost:14008";
             port = 54321;
             playerName = "rakrht";

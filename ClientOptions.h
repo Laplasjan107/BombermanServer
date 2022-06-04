@@ -30,7 +30,7 @@ namespace bomberman {
             }
         };
 
-        ClientOptions([[maybe_unused]]int argumentsCount, [[maybe_unused]] char *argumentsTable[]) {
+        ClientOptions( ) {
             /*
             namespace po = boost::program_options;
 

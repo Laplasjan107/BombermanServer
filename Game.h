@@ -221,6 +221,7 @@ namespace bomberman {
                             std::cerr << "[debug] Player destroyed, id = " << (int) player.first << "\n";
                             playersDestroyed.insert(player.first);
                             _playersDestroyer.insert(player.first);
+                            _alive.erase(player.first);
                         }
                     }
 
@@ -261,7 +262,8 @@ namespace bomberman {
                 if (_alive.contains(playerId)) {
                     if (_newPlayerPosition.contains(playerId)) {
                         if (isInside(_newPlayerPosition[playerId]) &&
-                                !_blocks.contains(_newPlayerPosition[playerId]))
+                                !_blocks.contains(_newPlayerPosition[playerId]) &&
+                                    _alive.contains(playerId))
                         {
                             _playerPositions[playerId] = _newPlayerPosition[playerId];
                             loadPlayerMovedEvent(playerId);

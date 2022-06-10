@@ -108,7 +108,7 @@ namespace bomberman {
 
         void sendGameToGUI() {
             game->writeToUDP();
-            UDPMessage::sendAndClear(*GUISocket, guiWriteEndpoint);
+            Message::sendAndClear(*GUISocket, guiWriteEndpoint);
         }
 
 
@@ -221,7 +221,7 @@ namespace bomberman {
                 }
             }
             catch (...) {
-                _exceptionPointer =std::current_exception();
+                _exceptionPointer = std::current_exception();
             }
         }
 

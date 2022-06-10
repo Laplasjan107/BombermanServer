@@ -17,7 +17,7 @@
 
 #include "types.h"
 #include "Player.h"
-#include "messages/client-gui/UDPMessage.h"
+#include "messages/client-gui/Message.h"
 #include "ServerOptions.h"
 #include "Bomb.h"
 
@@ -58,8 +58,8 @@ namespace bomberman {
         }
 
         void generateHello() {
-            UDPMessage::clearBuffer();
-            auto message = UDPMessage::getInstance();
+            Message::clearBuffer();
+            auto message = Message::getInstance();
             message << (uint8_t) 0
                     << _gameOptions.serverName
                     << _gameOptions.playerCount
@@ -68,7 +68,7 @@ namespace bomberman {
                     << _gameOptions.gameLength
                     << _gameOptions.explosionRadius
                     << _gameOptions.bombTimer;
-            _helloBuffer = UDPMessage::getBuffer();
+            _helloBuffer = Message::getBuffer();
         }
 
         bool isRunning() const {
@@ -85,12 +85,12 @@ namespace bomberman {
                 players.insert({playerId, newPlayer});
                 _playerIds.insert(playerId);
 
-                UDPMessage::clearBuffer();
-                UDPMessage::getInstance() << acceptedHeader
-                                          << playerId
-                                          << newPlayer.playerName
-                                          << newPlayer.playerAddress;
-                auto recentlyAcceptedPlayer = UDPMessage::getBuffer();
+                Message::clearBuffer();
+                Message::getInstance() << acceptedHeader
+                                       << playerId
+                                       << newPlayer.playerName
+                                       << newPlayer.playerAddress;
+                auto recentlyAcceptedPlayer = Message::getBuffer();
 
                 _allAcceptedPlayers.insert(
                         _allAcceptedPlayers.end(),
@@ -106,12 +106,12 @@ namespace bomberman {
 
         void startGame() {
             _isRunning = true;
-            UDPMessage::clearBuffer();
-            UDPMessage::getInstance()
+            Message::clearBuffer();
+            Message::getInstance()
                     << (uint8_t) 2 // GameStarted
                     << players;
 
-            _gameStarted = UDPMessage::getBuffer();
+            _gameStarted = Message::getBuffer();
             _server->sendToAll(_gameStarted);
 
             newTurn();
@@ -153,7 +153,7 @@ namespace bomberman {
         void newTurn() {
             events = 0;
             size_t explodingId = turn % _gameOptions.bombTimer;
-            UDPMessage::clearBuffer();
+            Message::clearBuffer();
 
             for (auto &bomb: _bombs[explodingId]) {
                 calculateBombOutcome(bomb);
@@ -165,12 +165,12 @@ namespace bomberman {
                 generateBlocks();
             }
 
-            UDPMessage::getInstance()
+            Message::getInstance()
                     << (uint8_t) 3
                     << turn
                     << (list_size_t) _events.size();
 
-            auto turnHeader = UDPMessage::getBuffer();
+            auto turnHeader = Message::getBuffer();
             _server->sendTurn(turnHeader, _events);
 
             _allTurns.push_back(turnHeader);
@@ -225,12 +225,12 @@ namespace bomberman {
                 }
             }
 
-            UDPMessage::clearBuffer();
-            UDPMessage::getInstance() << (uint8_t) 1 // Bomb exploded
+            Message::clearBuffer();
+            Message::getInstance() << (uint8_t) 1 // Bomb exploded
                                       << bomb.second
-                                      << playersDestroyed
-                                      << blocksDestroyed;
-            _events.push_back(UDPMessage::getBuffer());
+                                   << playersDestroyed
+                                   << blocksDestroyed;
+            _events.push_back(Message::getBuffer());
         }
 
         void generateBlocks() {
@@ -272,24 +272,24 @@ namespace bomberman {
 
         void loadPlayerMovedEvent(player_id_t playerId) {
             ++events;
-            UDPMessage::clearBuffer();
-            UDPMessage::getInstance() << (uint8_t) 2 << playerId << _newPlayerPosition[playerId];
-            _events.push_back(UDPMessage::getBuffer());
+            Message::clearBuffer();
+            Message::getInstance() << (uint8_t) 2 << playerId << _newPlayerPosition[playerId];
+            _events.push_back(Message::getBuffer());
         }
 
         void loadPlacedBlockEvent(const Position &position) {
             ++events;
-            UDPMessage::clearBuffer();
-            UDPMessage::getInstance() << (uint8_t) 3 << position;
-            _events.push_back(UDPMessage::getBuffer());
+            Message::clearBuffer();
+            Message::getInstance() << (uint8_t) 3 << position;
+            _events.push_back(Message::getBuffer());
         }
 
         void loadBombPlacedEvent(Bomb &bomb) {
             ++events;
-            UDPMessage::clearBuffer();
-            UDPMessage::getInstance() << (uint8_t) 0 << nextBombId << bomb.bombPosition;
+            Message::clearBuffer();
+            Message::getInstance() << (uint8_t) 0 << nextBombId << bomb.bombPosition;
             _bombs[turn % _gameOptions.bombTimer].push_back({bomb, nextBombId});
-            _events.push_back(UDPMessage::getBuffer());
+            _events.push_back(Message::getBuffer());
 
             ++nextBombId;
         }
@@ -314,9 +314,9 @@ namespace bomberman {
         }
 
         void endGame() {
-            UDPMessage::clearBuffer();
-            UDPMessage::getInstance() << (uint8_t) 4 << _scores;
-            _server->sendToAll(UDPMessage::getBuffer());
+            Message::clearBuffer();
+            Message::getInstance() << (uint8_t) 4 << _scores;
+            _server->sendToAll(Message::getBuffer());
             _isRunning = false;
             players.clear();
             _playerPositions.clear();

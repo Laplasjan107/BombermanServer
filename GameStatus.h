@@ -9,7 +9,7 @@
 #include "common.h"
 #include "Player.h"
 #include "Bomb.h"
-#include "messages/client-gui/UDPMessage.h"
+#include "messages/client-gui/Message.h"
 #include <unordered_set>
 #include <vector>
 #include <atomic>
@@ -53,13 +53,7 @@ namespace bomberman {
         }
 
         void writeGameToUDP() {
-            std::cerr << "[debug] Writing game to UDP:\n";
-            std::cerr << mapSettings.serverName << std::endl;
-            for (auto &player: players) {
-                std::cerr << (int) player.first << " " << player.second.playerName << player.second.playerAddress << "\n";
-            }
-
-            UDPMessage::getInstance()
+            Message::getInstance()
                     << static_cast<uint8_t>(DrawMessageType::Game)
                     << mapSettings.serverName
                     << mapSettings.sizeX
@@ -75,7 +69,7 @@ namespace bomberman {
         }
 
         void writeLobbyToUDP() {
-            UDPMessage::getInstance()
+            Message::getInstance()
                     << static_cast<uint8_t>(DrawMessageType::Lobby)
                     << mapSettings.serverName
                     << mapSettings.playersCount
@@ -164,7 +158,7 @@ namespace bomberman {
         }
 
         void writeToUDP() {
-            UDPMessage::clearBuffer();
+            Message::clearBuffer();
             if (running) {
                 writeGameToUDP();
             } else {

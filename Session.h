@@ -172,7 +172,7 @@ namespace bomberman {
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
                                uint8_t direction = _buffer[0];
-                               if (direction < 4) {
+                               if (direction < numberOfDirections) {
                                    _game->movePlayer(sessionId, direction);
                                    doReadHeader();
                                } else {

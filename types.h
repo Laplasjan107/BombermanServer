@@ -29,6 +29,7 @@ namespace bomberman {
 
     using event_message = std::vector<uint8_t>;
     using turn_message = std::vector<event_message>;
+    const constexpr size_t numberOfDirections = 4;
 }
 
 #endif //BOMBERMANSERVER_TYPES_H

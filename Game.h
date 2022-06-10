@@ -20,9 +20,11 @@
 #include "messages/client-gui/Message.h"
 #include "ServerOptions.h"
 #include "Bomb.h"
+#include "messages/server-client/ServerMessageType.h"
 
 namespace bomberman {
-    struct Game {
+
+    class Game {
         std::unordered_map<int, player_id_t> _session_to_player;
         turn_message _events;
         turn_message _allTurns;
@@ -40,13 +42,14 @@ namespace bomberman {
         }
 
         std::vector<uint8_t> turns;
-        static const constexpr Position versors[4] = {{0,                  1},
-                                                      {1,                  0},
-                                                      {0,                  (board_size_t) - 1},
-                                                      {(board_size_t) - 1, 0},
-        };
+        static const constexpr Position versors[numberOfDirections] =
+                {{0,                 1},
+                 {1,                 0},
+                 {0,                 (board_size_t) -1},
+                 {(board_size_t) -1, 0},
+                };
 
-
+    public:
         explicit Game(GameOptions &gameOptions, std::shared_ptr<IServer> server) :
                 _gameOptions(gameOptions),
                 _isRunning(false),
@@ -56,11 +59,11 @@ namespace bomberman {
             generateHello();
             _lastRandom = gameOptions.seed;
         }
-
+    private:
         void generateHello() {
             Message::clearBuffer();
             auto message = Message::getInstance();
-            message << (uint8_t) 0
+            message << ServerMessageType::Hello
                     << _gameOptions.serverName
                     << _gameOptions.playerCount
                     << _gameOptions.sizeX
@@ -70,7 +73,7 @@ namespace bomberman {
                     << _gameOptions.bombTimer;
             _helloBuffer = Message::getBuffer();
         }
-
+    public:
         bool isRunning() const {
             return _isRunning;
         }
@@ -80,13 +83,12 @@ namespace bomberman {
                 _session_to_player[sessionId] = (uint8_t) _session_to_player.size();
                 player_id_t playerId = _session_to_player[sessionId];
 
-                static const uint8_t acceptedHeader = 1;
                 Player newPlayer{std::move(playerName), std::move(address)};
                 players.insert({playerId, newPlayer});
                 _playerIds.insert(playerId);
 
                 Message::clearBuffer();
-                Message::getInstance() << acceptedHeader
+                Message::getInstance() << ServerMessageType::AcceptedPlayer
                                        << playerId
                                        << newPlayer.playerName
                                        << newPlayer.playerAddress;
@@ -108,7 +110,7 @@ namespace bomberman {
             _isRunning = true;
             Message::clearBuffer();
             Message::getInstance()
-                    << (uint8_t) 2 // GameStarted
+                    << ServerMessageType::GameStarted
                     << players;
 
             _gameStarted = Message::getBuffer();
@@ -144,12 +146,12 @@ namespace bomberman {
                     _newPlayerPosition[playerId] = newPosition;
             }
         }
-
+    private:
         bool isInside(const Position &position) const {
             return position.positionX < _gameOptions.sizeX &&
                    position.positionY < _gameOptions.sizeY;
         }
-
+    public:
         void newTurn() {
             events = 0;
             size_t explodingId = turn % _gameOptions.bombTimer;
@@ -166,7 +168,7 @@ namespace bomberman {
             }
 
             Message::getInstance()
-                    << (uint8_t) 3
+                    << ServerMessageType::Turn
                     << turn
                     << (list_size_t) _events.size();
 
@@ -184,7 +186,7 @@ namespace bomberman {
             }
             ++turn;
         }
-
+    private:
         void doCleanUp() {
             for (const auto &dead: _playersDestroyer) {
                 ++_scores[dead];
@@ -227,7 +229,7 @@ namespace bomberman {
 
             Message::clearBuffer();
             Message::getInstance() << (uint8_t) 1 // Bomb exploded
-                                      << bomb.second
+                                   << bomb.second
                                    << playersDestroyed
                                    << blocksDestroyed;
             _events.push_back(Message::getBuffer());
@@ -294,10 +296,12 @@ namespace bomberman {
             ++nextBombId;
         }
 
+    public:
         const std::vector<uint8_t> &helloMessage() const {
             return _helloBuffer;
         }
 
+    private:
         void clearMoves() {
             _newPlayerPosition.clear();
             _newBomb.clear();
@@ -315,7 +319,7 @@ namespace bomberman {
 
         void endGame() {
             Message::clearBuffer();
-            Message::getInstance() << (uint8_t) 4 << _scores;
+            Message::getInstance() << ServerMessageType::GameEnded << _scores;
             _server->sendToAll(Message::getBuffer());
             _isRunning = false;
             players.clear();

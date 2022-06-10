@@ -25,20 +25,6 @@ namespace bomberman {
         }
 
         Player(string name, string address) : playerName(std::move(name)), playerAddress(std::move(address)) {}
-
-        const string &toBuffer() {
-            if (buffer.empty()) {
-                buffer.append(1, (char) playerName.length());
-                buffer.append(playerName);
-                buffer.append(1, (char) playerAddress.length());
-                buffer.append(playerAddress);
-            }
-
-            return buffer;
-        }
-
-        void print() const {
-        }
     };
 
     using players_t = std::unordered_map<player_id_t, Player>;

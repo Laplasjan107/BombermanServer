@@ -215,7 +215,6 @@ namespace bomberman {
     public:
         void sendToAll(std::vector<uint8_t> acceptedPlayer) override {
             clearConnections();
-            std::cerr << activePlayers.size() << "\n";
             for (const auto &player: activePlayers) {
                 player->sendMessage(acceptedPlayer);
             }
@@ -293,21 +292,22 @@ namespace bomberman {
 
 int main(int argc, char *argv[]) {
     using namespace bomberman;
+    using namespace std;
 
     try {
         GameOptions options{argc, argv};
         boost::asio::io_context io_context;
-        std::shared_ptr<Server> server = std::make_shared<Server>(io_context, options);
+        shared_ptr<Server> server = make_shared<Server>(io_context, options);
         server->startGame();
 
         io_context.run();
     }
     catch (GameOptions::HelpException &e) {
-        std::cerr << helpMessage;
+        cout << helpMessage;
         return 0;
     }
     catch (std::exception &e) {
-        std::cerr << "Server stopped: " << e.what() << "\n";
+        cerr << "Server stopped: " << e.what() << "\n";
         return 1;
     }
 }

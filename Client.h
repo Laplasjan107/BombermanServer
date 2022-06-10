@@ -11,6 +11,7 @@
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <thread>
+#include <stdexcept>
 
 #include "ClientOptions.h"
 #include "MapSettings.h"
@@ -40,6 +41,7 @@ namespace bomberman {
         std::unique_ptr<udp::socket> GUISocket;
         udp::endpoint guiWriteEndpoint;
         std::unique_ptr<GameStatus> game;
+        std::exception_ptr _exceptionPointer = nullptr;
 
         void sendJoinToServer() {
             static const constexpr size_t joinHeaderSize = 2;
@@ -112,24 +114,16 @@ namespace bomberman {
 
         void handleHelloMessage() {
             auto hello = HelloMessage(*serverSocket);
-            std::cerr << "[debug] Hello message received\n";
             game->initializeGame(hello);
         }
 
         void handleAcceptedPlayerMessage() {
             auto accepted = AcceptedPlayerMessage(*serverSocket);
-            std::cerr << "[debug] Accepted player received: "
-                << (int) accepted.playerId << " " << accepted.player.playerName << " "
-                << accepted.player.playerAddress << "\n";
             game->newPlayer(accepted);
         }
 
         void handleGameStartedMessage() {
             auto started = GameStartedMessage(*serverSocket);
-            std::cerr << "[debug] Game started received: ";
-            for (auto e: started.activePlayers) {
-                std::cerr << (int) e.first << " " << e.second.playerName << " " << e.second.playerAddress << "\n";
-            }
             game->startGame(started);
         }
 
@@ -144,12 +138,10 @@ namespace bomberman {
         }
 
         void handlePlayerMovedEvent() {
-            std::cerr << "[debug] Got player moved\n";
             player_id_t playerId;
             read_number_inplace(*serverSocket, playerId);
             Position playerPosition{*serverSocket};
             game->movePlayer(playerId, playerPosition);
-            std::cerr << "[debug] Player id = " << (int) playerId << ", position = " << playerPosition << "\n";
         }
 
         void handleBlockPlacedEvent() {
@@ -158,7 +150,6 @@ namespace bomberman {
         }
 
         void handleEvent() {
-            std::cerr << "[debug] Got event\n";
             message_header_t eventHeader;
             read_number_inplace(*serverSocket, eventHeader);
             switch (eventHeader) {
@@ -180,17 +171,12 @@ namespace bomberman {
         }
 
         void handleTurnMessage() {
-            std::cerr << "[debug] Turn message received.\n";
             game_length_t turnNumber;
             read_number_inplace(*serverSocket, turnNumber);
-            std::cerr << "[debug] Turn number: " << turnNumber << "\n";
-
             game->newTurn(turnNumber);
 
             list_size_t eventsNumber;
             read_number_inplace(*serverSocket, eventsNumber);
-            std::cerr << "[debug] Turn events: " << eventsNumber << "\n";
-
             for (list_size_t i = 0; i < eventsNumber; ++i) {
                 handleEvent();
             }
@@ -203,34 +189,39 @@ namespace bomberman {
 
         // Main server connection handler.
         void serverConnection() {
-            while (true) {
-                message_header_t messageType;
-                boost::asio::read(*serverSocket, boost::asio::buffer(&messageType, sizeof(messageType)));
-                bool refreshGUI = true;
+            try {
+                while (true) {
+                    message_header_t messageType;
+                    boost::asio::read(*serverSocket, boost::asio::buffer(&messageType, sizeof(messageType)));
+                    bool refreshGUI = true;
 
-                switch (messageType) {
-                    case ServerMessageType::Hello:
-                        handleHelloMessage();
-                        break;
-                    case ServerMessageType::AcceptedPlayer:
-                        handleAcceptedPlayerMessage();
-                        break;
-                    case ServerMessageType::GameStarted:
-                        handleGameStartedMessage();
-                        refreshGUI = false;
-                        break;
-                    case ServerMessageType::Turn:
-                        handleTurnMessage();
-                        break;
-                    case ServerMessageType::GameEnded:
-                        handleGameEndedMessage();
-                        break;
-                    default:
-                        throw UnexpectedMessageException();
+                    switch (messageType) {
+                        case ServerMessageType::Hello:
+                            handleHelloMessage();
+                            break;
+                        case ServerMessageType::AcceptedPlayer:
+                            handleAcceptedPlayerMessage();
+                            break;
+                        case ServerMessageType::GameStarted:
+                            handleGameStartedMessage();
+                            refreshGUI = false;
+                            break;
+                        case ServerMessageType::Turn:
+                            handleTurnMessage();
+                            break;
+                        case ServerMessageType::GameEnded:
+                            handleGameEndedMessage();
+                            break;
+                        default:
+                            throw UnexpectedMessageException();
+                    }
+
+                    if (refreshGUI)
+                        sendGameToGUI();
                 }
-
-                if (refreshGUI)
-                    sendGameToGUI();
+            }
+            catch (...) {
+                _exceptionPointer = current_exception();
             }
         }
 
@@ -269,8 +260,10 @@ namespace bomberman {
             std::thread gui_thread(&Client::guiConnection, this);
             std::thread server_thread(&Client::serverConnection, this);
 
-            gui_thread.join();
             server_thread.join();
+            rethrow_exception(_exceptionPointer);
+            //std::terminate(gui_thread);
+            //gui_thread.join();
         }
     };
 }

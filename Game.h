@@ -136,26 +136,32 @@ namespace bomberman {
 
 
         void placeBomb(int sessionId) {
-            player_id_t playerId = _session_to_player[sessionId];
-            clearLastMove(playerId);
-            _newBomb[playerId] = Bomb(_playerPositions[playerId], _gameOptions.bombTimer);
+            if (isRunning()) {
+                player_id_t playerId = _session_to_player[sessionId];
+                clearLastMove(playerId);
+                _newBomb[playerId] = Bomb(_playerPositions[playerId], _gameOptions.bombTimer);
+            }
         }
 
         void placeBlock(int sessionId) {
-            player_id_t playerId = _session_to_player[sessionId];
-            clearLastMove(playerId);
-            _newBlock[playerId] = _playerPositions[playerId];
+            if (isRunning()) {
+                player_id_t playerId = _session_to_player[sessionId];
+                clearLastMove(playerId);
+                _newBlock[playerId] = _playerPositions[playerId];
+            }
         }
 
         void movePlayer(int sessionId, uint8_t direction) {
-            player_id_t playerId = _session_to_player[sessionId];
-            clearLastMove(playerId);
-            Position newPosition = _playerPositions[playerId] + versors[direction];
+            if (isRunning()) {
+                player_id_t playerId = _session_to_player[sessionId];
+                clearLastMove(playerId);
+                Position newPosition = _playerPositions[playerId] + versors[direction];
 
-            std::cerr << "[debug] Got move. New position: " << newPosition << "\n";
+                std::cerr << "[debug] Got move. New position: " << newPosition << "\n";
 
-            if (isInside(newPosition))
-                _newPlayerPosition[playerId] = newPosition;
+                if (isInside(newPosition))
+                    _newPlayerPosition[playerId] = newPosition;
+            }
         }
 
         bool isInside(const Position &position) const {
@@ -252,8 +258,7 @@ namespace bomberman {
         void generateBlocks() {
             for (int i = 0; i < 10; ++i) {
                 auto newBlock = randomPosition();
-                if (!_blocks.contains(newBlock))
-                {
+                if (!_blocks.contains(newBlock)) {
                     _blocks.insert(newBlock);
                     loadPlacedBlockEvent(newBlock);
                 }
@@ -269,8 +274,7 @@ namespace bomberman {
                 if (_alive.contains(playerId)) {
                     if (_newPlayerPosition.contains(playerId)) {
                         if (isInside(_newPlayerPosition[playerId]) &&
-                                !_blocks.contains(_newPlayerPosition[playerId]))
-                        {
+                            !_blocks.contains(_newPlayerPosition[playerId])) {
                             _playerPositions[playerId] = _newPlayerPosition[playerId];
                             loadPlayerMovedEvent(playerId);
                         }
@@ -364,7 +368,7 @@ namespace bomberman {
         GameOptions _gameOptions;
         bool _isRunning;
         players_t players;
-        std::set<player_id_t>_playerIds;
+        std::set<player_id_t> _playerIds;
         std::vector<uint8_t> _helloBuffer;
         std::vector<uint8_t> _allAcceptedPlayers;
         std::vector<uint8_t> _gameStarted;

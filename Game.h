@@ -23,7 +23,6 @@
 
 namespace bomberman {
     struct Game {
-        //event_message _events;
         turn_message _events;
         turn_message _allTurns;
 

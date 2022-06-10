@@ -26,15 +26,15 @@ namespace bomberman {
         std::unordered_map<int, player_id_t> _session_to_player;
         turn_message _events;
         turn_message _allTurns;
+        size_t _lastRandom;
 
-        static size_t random() {
-            static size_t last = 324;
-            last *= 48271;
-            last %= 2147483647;
-            return last;
+        size_t random() {
+            _lastRandom *= 48271;
+            _lastRandom %= 2147483647;
+            return _lastRandom;
         }
 
-        Position randomPosition() const {
+        Position randomPosition() {
             return {static_cast<board_size_t>(random() % _gameOptions.sizeX),
                     static_cast<board_size_t>(random() % _gameOptions.sizeY)};
         }
@@ -54,6 +54,7 @@ namespace bomberman {
 
             _bombs = std::vector<std::vector<std::pair<Bomb, bomb_id_t>>>(gameOptions.bombTimer);
             generateHello();
+            _lastRandom = gameOptions.seed;
         }
 
         void generateHello() {

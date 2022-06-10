@@ -165,11 +165,12 @@ namespace bomberman {
                            if (!ec && !_disconnect) {
                                _buffer[nameLength] = '\0';
                                string name((char *) _buffer);
-                               string address = socket_.remote_endpoint().address().to_string();
-                               if (socket_.remote_endpoint().address().is_v6()) {
-                                   address = "[" + address + "]";
-                               }
-                               address = address + ":" + std::to_string(socket_.remote_endpoint().port());
+                               string address = boost::lexical_cast<std::string>(socket_.remote_endpoint());
+    //                           string address = socket_.remote_endpoint().address().to_string();
+  //                             if (socket_.remote_endpoint().address().is_v6()) {
+//                                   address = "[" + address + "]";
+                               //}
+                               //address = address + ":" + std::to_string(socket_.remote_endpoint().port());
                                _game->joinPlayer(sessionId, name, address);
                                doReadHeader();
                            } else {
@@ -207,15 +208,15 @@ namespace bomberman {
     public:
         std::shared_ptr<Game> _game;
         tcp::socket socket_;
-        static player_id_t nextId;
-        player_id_t sessionId;
+        static int nextId;
+        int sessionId;
         bool _disconnect = false;
 
         static const constexpr size_t _bufferSize = 128;
         uint8_t _buffer[_bufferSize];
     };
 
-    player_id_t  Session::nextId = 0;
+    int Session::nextId = 0;
 
 
     class Server : public IServer, public std::enable_shared_from_this<Server> {
@@ -246,12 +247,6 @@ namespace bomberman {
                 _turnTimer(options.turnDuration),
                 _timer(io_context, boost::posix_time::milliseconds(options.turnDuration)),
                 _options(options) {}
-/*
-        Server(boost::asio::io_context &io_context, short port, const std::shared_ptr<Game> &game)
-                : acceptor_(io_context, tcp::endpoint(tcp::v6(), port)),
-                  _turnTimer(game->_gameOptions.turnDuration),
-                  _timer(io_context, boost::posix_time::milliseconds(game->_gameOptions.turnDuration)),
-                  _game(game) {} */
 
         void startGame() {
             _game = std::make_shared<Game>(_options, shared_from_this());

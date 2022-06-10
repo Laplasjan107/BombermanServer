@@ -23,6 +23,7 @@
 
 namespace bomberman {
     struct Game {
+        std::unordered_map<int, player_id_t> _session_to_player;
         turn_message _events;
         turn_message _allTurns;
 
@@ -73,15 +74,19 @@ namespace bomberman {
             return _isRunning;
         }
 
-        void disconnectPlayer(player_id_t playerId) {
+        void disconnectPlayer(int sessionId) {
 
         }
 
-        void joinPlayer(player_id_t playerId, string playerName, string address) {
-            std::cerr << "[debug] Got join player, id" << (int) playerId << " name "
+        void joinPlayer(int sessionId, string playerName, string address) {
+            std::cerr << "[debug] Got join player, id" << (int) sessionId << " name "
                       << playerName << " address " << address << '\n';
 
-            if (!isRunning() && !players.contains(playerId)) {
+
+            if (!isRunning() && !_session_to_player.contains(sessionId)) {
+                _session_to_player[sessionId] = (uint8_t) _session_to_player.size();
+                player_id_t playerId = _session_to_player[sessionId];
+
                 static const uint8_t acceptedHeader = 1;
                 Player newPlayer{std::move(playerName), std::move(address)};
                 players.insert({playerId, newPlayer});
@@ -128,17 +133,20 @@ namespace bomberman {
         }
 
 
-        void placeBomb(player_id_t playerId) {
+        void placeBomb(int sessionId) {
+            player_id_t playerId = _session_to_player[sessionId];
             clearLastMove(playerId);
             _newBomb[playerId] = Bomb(_playerPositions[playerId], _gameOptions.bombTimer);
         }
 
-        void placeBlock(player_id_t playerId) {
+        void placeBlock(int sessionId) {
+            player_id_t playerId = _session_to_player[sessionId];
             clearLastMove(playerId);
             _newBlock[playerId] = _playerPositions[playerId];
         }
 
-        void movePlayer(player_id_t playerId, uint8_t direction) {
+        void movePlayer(int sessionId, uint8_t direction) {
+            player_id_t playerId = _session_to_player[sessionId];
             clearLastMove(playerId);
             Position newPosition = _playerPositions[playerId] + versors[direction];
 
@@ -340,6 +348,7 @@ namespace bomberman {
             _gameStarted.clear();
             _allTurns.clear();
             _playerIds.clear();
+            _session_to_player.clear();
             for (auto &bombBucket: _bombs)
                 bombBucket.clear();
             _alive.clear();

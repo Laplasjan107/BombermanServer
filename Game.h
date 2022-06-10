@@ -351,6 +351,7 @@ namespace bomberman {
             _gameStarted.clear();
             _allTurns.clear();
             _playerIds.clear();
+            std::cerr << "CLEAR\n";
             _session_to_player.clear();
             for (auto &bombBucket: _bombs)
                 bombBucket.clear();

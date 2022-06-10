@@ -65,7 +65,7 @@ namespace bomberman {
             std::cout << "timer \n";
             bombTimer = programVariables["bomb-timer"].as<bomb_timer_t>();
             std::cout << "player c\n";
-            playerCount = programVariables["players-count"].as<players_count_t>();
+            playerCount = (players_count_t) programVariables["players-count"].as<uint32_t>();
             std::cout << "turn d\n";
             turnDuration = programVariables["turn-duration"].as<uint64_t>();
             std::cout << "exp r\n";

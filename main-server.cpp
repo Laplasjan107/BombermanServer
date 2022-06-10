@@ -35,17 +35,14 @@ namespace bomberman {
     struct ISession {
         virtual void sendMessage(std::vector<uint8_t> acceptedPlayer) = 0;
 
-        virtual ~ISession() {};
+        virtual ~ISession() = default;
     };
 
     class Session : public ISession, public std::enable_shared_from_this<Session> {
         std::unique_ptr<std::queue<std::vector<uint8_t>>> _messages;
-
-        std::shared_ptr<IServer> _server;
     public:
-        Session(tcp::socket socket, std::shared_ptr<Game> game, std::shared_ptr<IServer> server)
-                : _server(std::move(server)),
-                  _game(std::move(game)),
+        Session(tcp::socket socket, std::shared_ptr<Game> game)
+                : _game(std::move(game)),
                   socket_(std::move(socket)),
                   sessionId(nextId++) {
             _messages = std::make_unique<std::queue<std::vector<uint8_t>>>();
@@ -226,11 +223,9 @@ namespace bomberman {
 
     public:
         void sendToAll(std::vector<uint8_t> acceptedPlayer) override {
-            std::cerr << "[debug] NOS = " << activePlayers.size() << " after ";
             clearConnections();
             std::cerr << activePlayers.size() << "\n";
             for (const auto &player: activePlayers) {
-                std::cerr << "sending to: " << (int) player->sessionId << '\n';
                 player->sendMessage(acceptedPlayer);
             }
         }
@@ -260,12 +255,8 @@ namespace bomberman {
             acceptor_.async_accept(
                     [this](boost::system::error_code ec, tcp::socket socket) {
                         if (!ec) {
-                            std::cerr << "[debug] Someone connected\n";
-                            std::shared_ptr<Server> self = shared_from_this();
-                            std::shared_ptr<IServer> ISelf = std::dynamic_pointer_cast<IServer>(self);
                             auto player = std::make_shared<Session>(std::move(socket),
-                                                                    std::shared_ptr(_game),
-                                                                    ISelf);
+                                                                    std::shared_ptr(_game));
                             player->start();
                             activePlayers.insert(std::shared_ptr(player));
                         }
@@ -280,8 +271,6 @@ namespace bomberman {
             if (_game->isRunning()) {
                 _game->newTurn();
             }
-
-            std::cerr << "TURN TIMER = " << _turnTimer << "\n";
 
             _timer.expires_from_now(boost::posix_time::milliseconds(_turnTimer));
             _timer.async_wait(
@@ -308,7 +297,6 @@ namespace bomberman {
         std::unordered_set<std::shared_ptr<Session>> activePlayers;
         tcp::acceptor acceptor_;
         std::shared_ptr<Game> _game;
-        std::vector<uint8_t> _turnMessage;
         uint64_t _turnTimer;
     };
 }

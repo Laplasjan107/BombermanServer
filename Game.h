@@ -76,12 +76,6 @@ namespace bomberman {
         }
 
         void joinPlayer(int sessionId, string playerName, string address) {
-            std::cerr << "[debug] Got join player, id" << (int) sessionId << " name "
-                      << playerName << " address " << address << '\n';
-
-            std::cerr << isRunning() << std::endl;
-            std::cerr << _session_to_player.contains(sessionId) << std::endl;
-            std::cerr << _session_to_player.size() << std::endl;
             if (!isRunning() && !_session_to_player.contains(sessionId)) {
                 _session_to_player[sessionId] = (uint8_t) _session_to_player.size();
                 player_id_t playerId = _session_to_player[sessionId];
@@ -103,12 +97,7 @@ namespace bomberman {
                         recentlyAcceptedPlayer.begin(),
                         recentlyAcceptedPlayer.end());
 
-                std::cerr << "[debug] send accepted to all\n";
-
                 _server->sendToAll(recentlyAcceptedPlayer);
-
-                std::cerr << "[debug] Ready " << players.size() << '/' << (int) _gameOptions.playerCount << '\n';
-
                 if (players.size() == _gameOptions.playerCount) {
                     startGame();
                 }
@@ -123,9 +112,6 @@ namespace bomberman {
                     << players;
 
             _gameStarted = UDPMessage::getBuffer();
-
-            std::cerr << "[debug] Game started.";
-
             _server->sendToAll(_gameStarted);
 
             newTurn();
@@ -154,8 +140,6 @@ namespace bomberman {
                 clearLastMove(playerId);
                 Position newPosition = _playerPositions[playerId] + versors[direction];
 
-                std::cerr << "[debug] Got move. New position: " << newPosition << "\n";
-
                 if (isInside(newPosition))
                     _newPlayerPosition[playerId] = newPosition;
             }
@@ -167,7 +151,6 @@ namespace bomberman {
         }
 
         void newTurn() {
-            std::cerr << "[debug] New turn " << turn << "\n";
             events = 0;
             size_t explodingId = turn % _gameOptions.bombTimer;
             UDPMessage::clearBuffer();
@@ -228,7 +211,6 @@ namespace bomberman {
 
                     for (auto &player: _playerPositions) {
                         if (player.second == current) {
-                            std::cerr << "[debug] Player destroyed, id = " << (int) player.first << "\n";
                             playersDestroyed.insert(player.first);
                             _playersDestroyer.insert(player.first);
                             _alive.erase(player.first);
@@ -236,7 +218,6 @@ namespace bomberman {
                     }
 
                     if (_blocks.contains(current)) {
-                        std::cerr << "[debug] Block destroyed " << current << "\n";
                         blocksDestroyed.insert(current);
                         _blocksDestroyed.insert(current);
                         break;
@@ -263,11 +244,7 @@ namespace bomberman {
         }
 
         void calculateMovesOutcome() {
-            std::cerr << "[debug] Calculate moves outcome: " << players.size() << "\n";
-
             for (const auto playerId: _playerIds) {
-                std::cerr << "[debug] Now player " << (int) playerId << "\n";
-
                 if (_alive.contains(playerId)) {
                     if (_newPlayerPosition.contains(playerId)) {
                         if (isInside(_newPlayerPosition[playerId]) &&
@@ -286,8 +263,6 @@ namespace bomberman {
                     }
                 } else {
                     _newPlayerPosition[playerId] = randomPosition();
-                    std::cerr << "[debug] Random position for player " << (int) playerId << " "
-                              << _newPlayerPosition[playerId] << '\n';
                     _playerPositions[playerId] = _newPlayerPosition[playerId];
                     loadPlayerMovedEvent(playerId);
                     _alive.insert(playerId);
@@ -339,7 +314,6 @@ namespace bomberman {
         }
 
         void endGame() {
-            std::cerr << "END GAME\n";
             UDPMessage::clearBuffer();
             UDPMessage::getInstance() << (uint8_t) 4 << _scores;
             _server->sendToAll(UDPMessage::getBuffer());
@@ -352,7 +326,6 @@ namespace bomberman {
             _gameStarted.clear();
             _allTurns.clear();
             _playerIds.clear();
-            std::cerr << "CLEAR\n";
             _session_to_player.clear();
             for (auto &bombBucket: _bombs)
                 bombBucket.clear();

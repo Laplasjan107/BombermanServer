@@ -7,6 +7,7 @@
 
 #include <boost/program_options.hpp>
 #include <exception>
+#include <chrono>
 #include "types.h"
 
 namespace bomberman {
@@ -34,7 +35,7 @@ namespace bomberman {
         GameOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
             static const auto MAX_UINT8 = (uint8_t) -1;
-            static const uint32_t defaultSeed = 1997;
+            static const uint32_t defaultSeed = (uint32_t) std::chrono::system_clock::now().time_since_epoch().count();
 
             po::options_description description("Options parser");
             description.add_options()

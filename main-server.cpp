@@ -54,7 +54,6 @@ namespace bomberman {
             if (_messages->empty()) {
                 async_write(socket_, buffer(message),
                             [this, self](boost::system::error_code ec, std::size_t) mutable {
-                                std::cerr << "[debug] wrote message, size of q = " << _messages->size() << '\n';
                                 if (!ec && !_disconnect) {
                                     if (!_messages->empty()) {
                                         auto next = _messages->front();
@@ -86,11 +85,6 @@ namespace bomberman {
 
             auto self = shared_from_this();
             auto hello = _game->helloMessage();
-            std::cerr << "[debug] Hello bytes:\n";
-            for (size_t i = 0; i < hello.size(); ++i)
-                std::cerr << (int) ((uint8_t *) hello.data())[i] << ' ';
-            std::cerr << "\n";
-
             sendMessage(_game->helloMessage());
         }
 
@@ -118,7 +112,6 @@ namespace bomberman {
                        buffer(_buffer, 1),
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
-                               std::cerr << "[debug] Got message " << (int) _buffer[0] << "\n";
                                uint8_t type = _buffer[0];
                                switch (type) {
                                    case static_cast<uint8_t>(ClientMessageType::Join):
@@ -152,7 +145,6 @@ namespace bomberman {
                        buffer(_buffer, sizeof(string_length_t)),
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
-                               std::cerr << "[debug] Got name length = " << (int) _buffer[0] << '\n';
                                string_length_t nameLength = _buffer[0];
                                doReadJoinName(nameLength);
                            } else {
@@ -189,7 +181,6 @@ namespace bomberman {
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
                                uint8_t direction = _buffer[0];
-                               std::cerr << "[debug] Got move\n";
                                if (direction < 4) {
                                    _game->movePlayer(sessionId, direction);
                                    doReadHeader();
@@ -284,7 +275,6 @@ namespace bomberman {
         void clearConnections() {
             for (auto iterator = activePlayers.begin(); iterator != activePlayers.end();) {
                 if ((*iterator)->_disconnect) {
-                    std::cerr << "[debug] Disconnected " << (*iterator)->sessionId << "\n";
                     auto toErase = iterator;
                     ++iterator;
                     activePlayers.erase(toErase);

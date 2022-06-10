@@ -331,7 +331,7 @@ int main(int argc, char *argv[]) {
     using namespace bomberman;
 
     try {
-        GameOptions options;
+        GameOptions options {argc, argv};
         //std::shared_ptr<Game> game = std::make_shared<Game>(options);
         //std::shared_ptr<Server> serv = std::make_shared<Server>(io_context, 12345, std::shared_ptr(game));
         boost::asio::io_context io_context;

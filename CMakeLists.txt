@@ -18,11 +18,6 @@ add_executable(robots-client main.cpp)
 target_link_libraries(robots-client LINK_PUBLIC Threads::Threads)
 target_link_libraries(robots-client LINK_PUBLIC ${Boost_LIBRARIES})
 
-add_executable(robots-server robots-server.cpp)
+add_executable(robots-server main-server.cpp)
 target_link_libraries(robots-server LINK_PUBLIC Threads::Threads)
 target_link_libraries(robots-server LINK_PUBLIC ${Boost_LIBRARIES})
-
-
-add_executable(server main-server.cpp)
-target_link_libraries(server LINK_PUBLIC Threads::Threads)
-target_link_libraries(server LINK_PUBLIC ${Boost_LIBRARIES})

@@ -73,7 +73,7 @@ namespace bomberman {
             std::cout << "initial b\n";
             initialBlocks = programVariables["initial-blocks"].as<uint16_t>();
             std::cout << "game l\n";
-            gameLength = programVariables["turn-duration"].as<game_length_t>();
+            gameLength = programVariables["game-length"].as<game_length_t>();
             std::cout << "ser n\n";
             serverName = programVariables["server-name"].as<std::string>();
             std::cout << "por \n";

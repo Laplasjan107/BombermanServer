@@ -6,7 +6,7 @@
 #define ROBOTS_CLIENT_SERVEROPTIONS_H
 
 #include <boost/program_options.hpp>
-#inclide <exception>
+#include <exception>
 #include "types.h"
 
 namespace bomberman {

@@ -285,6 +285,8 @@ namespace bomberman {
                 _game->newTurn();
             }
 
+            std::cerr << "TURN TIMER = " << _turnTimer << "\n";
+
             _timer.expires_from_now(boost::posix_time::milliseconds(_turnTimer));
             _timer.async_wait(
                     [this](boost::system::error_code ec) {

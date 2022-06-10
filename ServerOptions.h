@@ -51,9 +51,9 @@ namespace bomberman {
                     ("game-length,l", po::value<game_length_t>()->required(), "Number of turns in game")
                     ("server-name,n", po::value<std::string>()->required(), "Server name")
                     ("port,p", po::value<uint16_t>()->required(), "Port, on which the server listens")
-                    ("seed,s", po::value<uint32_t>()->default_value(1997), "Seed for the random numbers generator")
-                    ("size-x,x", po::value<board_size_t>(), "Horizontal length of the board")
-                    ("size-y,y", po::value<board_size_t>(), "Vertical length of the board");
+                    ("seed,s", po::value<uint32_t>()->default_value(1997)->required(), "Seed for the random numbers generator")
+                    ("size-x,x", po::value<board_size_t>()->required(), "Horizontal length of the board")
+                    ("size-y,y", po::value<board_size_t>()->required(), "Vertical length of the board");
 
             po::variables_map programVariables;
             po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(),

@@ -25,11 +25,13 @@ namespace bomberman {
         uint16_t initialBlocks;
 
         class HelpException : public std::invalid_argument {
-            explicit HelpException(const std::string &description) : invalid_argument(description) {}
 
             [[nodiscard]] const char *what() const noexcept override {
                     return "Help message requested";
             }
+
+        public:
+            explicit HelpException(const std::string &description) : invalid_argument(description) {}
         };
 
         GameOptions(int argumentsCount, char *argumentsTable[]) {
@@ -58,7 +60,7 @@ namespace bomberman {
             po::store(po::command_line_parser(argumentsCount, argumentsTable).options(description).run(),
                       programVariables);
             if (programVariables.count("help"))
-                throw;
+                throw HelpException("Help requested");
 
             po::notify(programVariables);
             bombTimer = programVariables["bomb-timer"].as<bomb_timer_t>();

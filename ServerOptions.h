@@ -36,23 +36,23 @@ namespace bomberman {
             seed = 3456;
         }
 
-        GameOptions([[maybe_unused]]int argumentsCount, [[maybe_unused]] char *argumentsTable[]) {
+        GameOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
 
             po::options_description description("Options parser");
             description.add_options()
                     ("help,h", "Help request")
-                    ("bomb-timer,b", po::value<bomb_timer_t>()->required(), "Bomb timer (rounds)"),
-                    ("players-count,c", po::value<players_count_t>()->required(), "Number of players"),
-                    ("turn-duration,d", po::value<uint64_t>()->required(), "Duration of one turn (ms)"),
-                    ("explosion-radius,e", po::value<board_size_t>()->required(), "Bomb explosion radius"),
+                    ("bomb-timer,b", po::value<bomb_timer_t>()->required(), "Bomb timer (rounds)")
+                    ("players-count,c", po::value<players_count_t>()->required(), "Number of players")
+                    ("turn-duration,d", po::value<uint64_t>()->required(), "Duration of one turn (ms)")
+                    ("explosion-radius,e", po::value<board_size_t>()->required(), "Bomb explosion radius")
                     ("initial-blocks,k", po::value<uint16_t>()->required(),
-                            "Number of randomly generated blocks at the start"),
-                    ("game-length,l", po::value<game_length_t>()->required(), "Number of turns in game"),
-                    ("server-name,n", po::value<std::string>()->required(), "Server name"),
-                    ("port,p", po::value<uint16_t>()->required(), "Port, on which the server listens"),
-                    ("seed,s", po::value<uint32_t>()->default_value(1997), "Seed for the random numbers generator"),
-                    ("size-x,x", po::value<board_size_t>(), "Horizontal length of the board"),
+                            "Number of randomly generated blocks at the start")
+                    ("game-length,l", po::value<game_length_t>()->required(), "Number of turns in game")
+                    ("server-name,n", po::value<std::string>()->required(), "Server name")
+                    ("port,p", po::value<uint16_t>()->required(), "Port, on which the server listens")
+                    ("seed,s", po::value<uint32_t>()->default_value(1997), "Seed for the random numbers generator")
+                    ("size-x,x", po::value<board_size_t>(), "Horizontal length of the board")
                     ("size-y,y", po::value<board_size_t>(), "Vertical length of the board");
 
             po::variables_map programVariables;

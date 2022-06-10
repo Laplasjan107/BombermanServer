@@ -256,7 +256,7 @@ namespace bomberman {
         }
 
         void generateBlocks() {
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < _gameOptions.initialBlocks; ++i) {
                 auto newBlock = randomPosition();
                 if (!_blocks.contains(newBlock)) {
                     _blocks.insert(newBlock);

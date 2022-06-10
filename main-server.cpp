@@ -314,6 +314,7 @@ namespace bomberman {
 
 int main(int argc, char *argv[]) {
     using namespace bomberman;
+    std::cerr << "start server";
 
     try {
         GameOptions options {argc, argv};

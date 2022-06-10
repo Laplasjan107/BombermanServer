@@ -6,6 +6,7 @@
 #define ROBOTS_CLIENT_SERVEROPTIONS_H
 
 #include <boost/program_options.hpp>
+#inclide <exception>
 #include "types.h"
 
 namespace bomberman {
@@ -38,12 +39,13 @@ namespace bomberman {
 
         GameOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
+            static const auto MAX_UINT8 = (uint8_t) -1;
 
             po::options_description description("Options parser");
             description.add_options()
                     ("help,h", "Help request")
                     ("bomb-timer,b", po::value<bomb_timer_t>()->required(), "Bomb timer (rounds)")
-                    ("players-count,c", po::value<players_count_t>()->required(), "Number of players")
+                    ("players-count,c", po::value<uint32_t>()->required(), "Number of players")
                     ("turn-duration,d", po::value<uint64_t>()->required(), "Duration of one turn (ms)")
                     ("explosion-radius,e", po::value<board_size_t>()->required(), "Bomb explosion radius")
                     ("initial-blocks,k", po::value<uint16_t>()->required(),
@@ -65,6 +67,9 @@ namespace bomberman {
             std::cout << "timer \n";
             bombTimer = programVariables["bomb-timer"].as<bomb_timer_t>();
             std::cout << "player c\n";
+            uint32_t tmpPlayerCount = programVariables["players-count"].as<uint32_t>();
+            if (tmpPlayerCount > MAX_UINT8)
+                throw std::invalid_argument("Player count is over its maximum");
             playerCount = (players_count_t) programVariables["players-count"].as<uint32_t>();
             std::cout << "turn d\n";
             turnDuration = programVariables["turn-duration"].as<uint64_t>();

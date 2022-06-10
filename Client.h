@@ -221,7 +221,7 @@ namespace bomberman {
                 }
             }
             catch (...) {
-                _exceptionPointer = current_exception();
+                _exceptionPointer =std::current_exception();
             }
         }
 

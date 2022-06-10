@@ -27,7 +27,6 @@ namespace bomberman {
     class Game {
         std::unordered_map<int, player_id_t> _session_to_player;
         turn_message _events;
-        turn_message _allTurns;
         size_t _lastRandom;
 
         size_t random() {
@@ -344,8 +343,8 @@ namespace bomberman {
         players_t players;
         std::set<player_id_t> _playerIds;
         std::vector<uint8_t> _helloBuffer;
-        std::vector<uint8_t> _allAcceptedPlayers;
-        std::vector<uint8_t> _gameStarted;
+
+
         std::shared_ptr<IServer> _server;
         std::vector<std::vector<std::pair<Bomb, bomb_id_t>>> _bombs;
         uint16_t turn = 0;
@@ -363,6 +362,10 @@ namespace bomberman {
 
         std::unordered_set<player_id_t> _playersDestroyer;
         std::unordered_set<Position> _blocksDestroyed;
+    public:
+        std::vector<uint8_t> _gameStarted;
+        std::vector<uint8_t> _allAcceptedPlayers;
+        turn_message _allTurns;
     };
 }
 

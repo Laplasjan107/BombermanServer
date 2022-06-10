@@ -199,11 +199,11 @@ namespace bomberman {
                 _allTurns.push_back(event);
 
             doCleanUp();
-            ++turn;
 
             if (turn == _gameOptions.gameLength) {
                 endGame();
             }
+            ++turn;
         }
 
         void doCleanUp() {

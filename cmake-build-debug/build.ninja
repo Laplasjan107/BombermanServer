@@ -75,7 +75,7 @@ build cmake_object_order_depends_target_robots-server: phony || CMakeFiles/robot
 build CMakeFiles/robots-server.dir/main-server.cpp.o: CXX_COMPILER__robots-server_Debug /Users/laplasjan/CLionProjects/BombermanServer/main-server.cpp || cmake_object_order_depends_target_robots-server
   DEFINES = -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_NO_LIB
   DEP_FILE = CMakeFiles/robots-server.dir/main-server.cpp.o.d
-  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
+  FLAGS = -Wall -Wextra -Wconversion -Werror -std=gnu++20 -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
   INCLUDES = -I/Users/laplasjan/CLionProjects/BombermanServer -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/robots-server.dir
   OBJECT_FILE_DIR = CMakeFiles/robots-server.dir
@@ -89,7 +89,7 @@ build CMakeFiles/robots-server.dir/main-server.cpp.o: CXX_COMPILER__robots-serve
 # Link the executable robots-server
 
 build robots-server: CXX_EXECUTABLE_LINKER__robots-server_Debug CMakeFiles/robots-server.dir/main-server.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
-  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
+  FLAGS = -Wall -Wextra -Wconversion -Werror -std=gnu++20 -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
   LINK_FLAGS = -Wl,-rpath -Wl,/opt/gcc-11.2/lib64
   LINK_LIBRARIES = /opt/homebrew/lib/libboost_program_options-mt.dylib
   OBJECT_DIR = CMakeFiles/robots-server.dir
@@ -110,7 +110,7 @@ build cmake_object_order_depends_target_robots-client: phony || CMakeFiles/robot
 build CMakeFiles/robots-client.dir/main.cpp.o: CXX_COMPILER__robots-client_Debug /Users/laplasjan/CLionProjects/BombermanServer/main.cpp || cmake_object_order_depends_target_robots-client
   DEFINES = -DBOOST_PROGRAM_OPTIONS_DYN_LINK -DBOOST_PROGRAM_OPTIONS_NO_LIB
   DEP_FILE = CMakeFiles/robots-client.dir/main.cpp.o.d
-  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
+  FLAGS = -Wall -Wextra -Wconversion -Werror -std=gnu++20 -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk -std=gnu++20
   INCLUDES = -I/Users/laplasjan/CLionProjects/BombermanServer -isystem /opt/homebrew/include
   OBJECT_DIR = CMakeFiles/robots-client.dir
   OBJECT_FILE_DIR = CMakeFiles/robots-client.dir
@@ -124,7 +124,7 @@ build CMakeFiles/robots-client.dir/main.cpp.o: CXX_COMPILER__robots-client_Debug
 # Link the executable robots-client
 
 build robots-client: CXX_EXECUTABLE_LINKER__robots-client_Debug CMakeFiles/robots-client.dir/main.cpp.o | /opt/homebrew/lib/libboost_program_options-mt.dylib
-  FLAGS = -Wall -Wextra -Wconversion -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
+  FLAGS = -Wall -Wextra -Wconversion -Werror -std=gnu++20 -O2 -g -arch x86_64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX12.3.sdk
   LINK_FLAGS = -Wl,-rpath -Wl,/opt/gcc-11.2/lib64
   LINK_LIBRARIES = /opt/homebrew/lib/libboost_program_options-mt.dylib
   OBJECT_DIR = CMakeFiles/robots-client.dir

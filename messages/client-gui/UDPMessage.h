@@ -146,11 +146,6 @@ namespace bomberman {
         }
 
         static void sendAndClear(udp::socket &socket, udp::endpoint& endpoint) {
-            std::cerr << "[debug] Sending to GUI:\n";
-            for (int i = 0; i < loaded; ++i)
-                std::cerr << (int) *((uint8_t*) bufferUDP + i) << ' ';
-            std::cerr << "\n";
-
             socket.send_to(boost::asio::buffer(bufferUDP, loaded), endpoint);
             clearBuffer();
         }
@@ -159,15 +154,6 @@ namespace bomberman {
             std::vector<uint8_t> send {std::begin(bufferUDP), std::begin(bufferUDP) + loaded};
             clearBuffer();
             return send;
-        }
-
-        template<typename T>
-        requires loadable<UDPMessage, T>
-        static void loadAtIndex(size_t index, T element) {
-            auto saveLoaded = loaded;
-            loaded = index;
-            getInstance() << element;
-            loaded = saveLoaded;
         }
     };
 

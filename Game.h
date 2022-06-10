@@ -75,10 +75,6 @@ namespace bomberman {
             return _isRunning;
         }
 
-        void disconnectPlayer(int sessionId) {
-
-        }
-
         void joinPlayer(int sessionId, string playerName, string address) {
             std::cerr << "[debug] Got join player, id" << (int) sessionId << " name "
                       << playerName << " address " << address << '\n';

@@ -140,11 +140,9 @@ namespace bomberman {
                                        break;
                                    default:
                                        _disconnect = true;
-                                       _game->disconnectPlayer(sessionId);
                                }
                            } else {
                                _disconnect = true;
-                               _game->disconnectPlayer(sessionId);
                            }
                        });
         }
@@ -161,7 +159,6 @@ namespace bomberman {
                                string_length_t nameLength = _buffer[0];
                                doReadJoinName(nameLength);
                            } else {
-                               _game->disconnectPlayer(sessionId);
                                _disconnect = true;
                            }
                        });
@@ -181,7 +178,6 @@ namespace bomberman {
                                _game->joinPlayer(sessionId, name, address);
                                doReadHeader();
                            } else {
-                               _game->disconnectPlayer(sessionId);
                                _disconnect = true;
                            }
                        });
@@ -201,12 +197,10 @@ namespace bomberman {
                                    _game->movePlayer(sessionId, direction);
                                    doReadHeader();
                                } else {
-                                   _game->disconnectPlayer(sessionId);
                                    _disconnect = true;
                                    return;
                                }
                            } else {
-                               _game->disconnectPlayer(sessionId);
                                _disconnect = true;
                            }
                        });

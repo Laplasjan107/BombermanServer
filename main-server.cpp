@@ -89,8 +89,6 @@ namespace bomberman {
             using namespace boost::asio;
             auto self = shared_from_this();
 
-            //std::vector<uint8_t> toSend = _game->_gameStarted;
-            //toSend.insert(toSend.end(), _game->turns.begin(), _game->turns.end());
             sendMessage(_game->_gameStarted);
             for (auto &turnFragment: _game->_allTurns)
                 sendMessage(turnFragment);
@@ -243,8 +241,8 @@ namespace bomberman {
         }
 
 
-        Server(boost::asio::io_context &io_context, short port, GameOptions options) :
-                acceptor_(io_context, tcp::endpoint(tcp::v6(), port)),
+        Server(boost::asio::io_context &io_context, GameOptions options) :
+                acceptor_(io_context, tcp::endpoint(tcp::v6(), options.port)),
                 _turnTimer(options.turnTimer),
                 _timer(io_context, boost::posix_time::milliseconds(options.turnTimer)),
                 _options(options) {}
@@ -285,8 +283,6 @@ namespace bomberman {
 
             if (_game->isRunning()) {
                 _game->newTurn();
-            } else {
-
             }
 
             _timer.expires_from_now(boost::posix_time::milliseconds(_turnTimer));
@@ -311,14 +307,6 @@ namespace bomberman {
             }
         }
 
-        void sendTurnToAll() {
-            std::cerr << "[debug] Send turn to " << activePlayers.size() << "\n";
-            for (auto iterator = activePlayers.begin(); iterator != activePlayers.end(); ++iterator) {
-                std::cerr << "[debug] Active player\n";
-                (*iterator)->sendMessage(_turnMessage);
-            }
-        }
-
         std::unordered_set<std::shared_ptr<Session>> activePlayers;
         tcp::acceptor acceptor_;
         std::shared_ptr<Game> _game;
@@ -332,10 +320,8 @@ int main(int argc, char *argv[]) {
 
     try {
         GameOptions options {argc, argv};
-        //std::shared_ptr<Game> game = std::make_shared<Game>(options);
-        //std::shared_ptr<Server> serv = std::make_shared<Server>(io_context, 12345, std::shared_ptr(game));
         boost::asio::io_context io_context;
-        std::shared_ptr<Server> server = std::make_shared<Server>(io_context, 12345, options);
+        std::shared_ptr<Server> server = std::make_shared<Server>(io_context, options);
         server->startGame();
 
         io_context.run();

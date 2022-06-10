@@ -262,8 +262,6 @@ namespace bomberman {
 
             server_thread.join();
             rethrow_exception(_exceptionPointer);
-            //std::terminate(gui_thread);
-            //gui_thread.join();
         }
     };
 }

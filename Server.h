@@ -25,7 +25,7 @@ namespace bomberman {
 
     class Server : public IServer, public std::enable_shared_from_this<Server> {
         boost::asio::deadline_timer _timer;
-        GameOptions _options;
+        ServerOptions _options;
 
     public:
         void sendToAll(std::vector<uint8_t> acceptedPlayer) override {
@@ -43,7 +43,7 @@ namespace bomberman {
         }
 
 
-        Server(boost::asio::io_context &io_context, const GameOptions &options) :
+        Server(boost::asio::io_context &io_context, const ServerOptions &options) :
                 _timer(io_context, boost::posix_time::milliseconds(options.turnDuration)),
                 _options(options),
                 acceptor_(io_context, tcp::endpoint(tcp::v6(), options.port)),

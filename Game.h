@@ -23,33 +23,16 @@
 #include "messages/server-client/ServerMessageType.h"
 
 namespace bomberman {
-
+    /*  Main gaming logic.
+     *  Server orders new turn start, while sessions request moves.
+     */
     class Game {
-        std::unordered_map<int, player_id_t> _session_to_player;
-        turn_message _events;
-        size_t _lastRandom;
-
-        size_t random() {
-            _lastRandom *= 48271;
-            _lastRandom %= 2147483647;
-            return _lastRandom;
-        }
-
-        Position randomPosition() {
-            return {static_cast<board_size_t>(random() % _gameOptions.sizeX),
-                    static_cast<board_size_t>(random() % _gameOptions.sizeY)};
-        }
-
-        std::vector<uint8_t> turns;
-        static const constexpr Position versors[numberOfDirections] =
-                {{0,                 1},
-                 {1,                 0},
-                 {0,                 (board_size_t) -1},
-                 {(board_size_t) -1, 0},
-                };
-
     public:
-        explicit Game(GameOptions &gameOptions, std::shared_ptr<IServer> server) :
+        std::vector<uint8_t> GameStarted;
+        std::vector<uint8_t> AllAcceptedPlayers;
+        turn_message AllTurns;
+
+        explicit Game(ServerOptions &gameOptions, std::shared_ptr<IServer> server) :
                 _gameOptions(gameOptions),
                 _isRunning(false),
                 _server(std::move(server)) {
@@ -58,21 +41,7 @@ namespace bomberman {
             generateHello();
             _lastRandom = gameOptions.seed;
         }
-    private:
-        void generateHello() {
-            Message::clearBuffer();
-            auto message = Message::getInstance();
-            message << ServerMessageType::Hello
-                    << _gameOptions.serverName
-                    << _gameOptions.playerCount
-                    << _gameOptions.sizeX
-                    << _gameOptions.sizeY
-                    << _gameOptions.gameLength
-                    << _gameOptions.explosionRadius
-                    << _gameOptions.bombTimer;
-            _helloBuffer = Message::getBuffer();
-        }
-    public:
+
         bool isRunning() const {
             return _isRunning;
         }
@@ -93,8 +62,8 @@ namespace bomberman {
                                        << newPlayer.playerAddress;
                 auto recentlyAcceptedPlayer = Message::getBuffer();
 
-                _allAcceptedPlayers.insert(
-                        _allAcceptedPlayers.end(),
+                AllAcceptedPlayers.insert(
+                        AllAcceptedPlayers.end(),
                         recentlyAcceptedPlayer.begin(),
                         recentlyAcceptedPlayer.end());
 
@@ -112,8 +81,8 @@ namespace bomberman {
                     << ServerMessageType::GameStarted
                     << players;
 
-            _gameStarted = Message::getBuffer();
-            _server->sendToAll(_gameStarted);
+            GameStarted = Message::getBuffer();
+            _server->sendToAll(GameStarted);
 
             newTurn();
         }
@@ -145,12 +114,7 @@ namespace bomberman {
                     _newPlayerPosition[playerId] = newPosition;
             }
         }
-    private:
-        bool isInside(const Position &position) const {
-            return position.positionX < _gameOptions.sizeX &&
-                   position.positionY < _gameOptions.sizeY;
-        }
-    public:
+
         void newTurn() {
             events = 0;
             size_t explodingId = turn % _gameOptions.bombTimer;
@@ -174,9 +138,9 @@ namespace bomberman {
             auto turnHeader = Message::getBuffer();
             _server->sendTurn(turnHeader, _events);
 
-            _allTurns.push_back(turnHeader);
+            AllTurns.push_back(turnHeader);
             for (auto &event: _events)
-                _allTurns.push_back(event);
+                AllTurns.push_back(event);
 
             doCleanUp();
 
@@ -185,7 +149,50 @@ namespace bomberman {
             }
             ++turn;
         }
+
     private:
+        std::unordered_map<int, player_id_t> _session_to_player;
+        turn_message _events;
+        size_t _lastRandom;
+
+        size_t random() {
+            _lastRandom *= 48271;
+            _lastRandom %= 2147483647;
+            return _lastRandom;
+        }
+
+        Position randomPosition() {
+            return {static_cast<board_size_t>(random() % _gameOptions.sizeX),
+                    static_cast<board_size_t>(random() % _gameOptions.sizeY)};
+        }
+
+        std::vector<uint8_t> turns;
+        static const constexpr Position versors[numberOfDirections] =
+                {{0,                 1},
+                 {1,                 0},
+                 {0,                 (board_size_t) -1},
+                 {(board_size_t) -1, 0},
+                };
+
+        void generateHello() {
+            Message::clearBuffer();
+            auto message = Message::getInstance();
+            message << ServerMessageType::Hello
+                    << _gameOptions.serverName
+                    << _gameOptions.playerCount
+                    << _gameOptions.sizeX
+                    << _gameOptions.sizeY
+                    << _gameOptions.gameLength
+                    << _gameOptions.explosionRadius
+                    << _gameOptions.bombTimer;
+            _helloBuffer = Message::getBuffer();
+        }
+
+        bool isInside(const Position &position) const {
+            return position.positionX < _gameOptions.sizeX &&
+                   position.positionY < _gameOptions.sizeY;
+        }
+
         void doCleanUp() {
             for (const auto &dead: _playersDestroyer) {
                 ++_scores[dead];
@@ -227,7 +234,7 @@ namespace bomberman {
             }
 
             Message::clearBuffer();
-            Message::getInstance() << (uint8_t) 1 // Bomb exploded
+            Message::getInstance() << EventType::BombExploded
                                    << bomb.second
                                    << playersDestroyed
                                    << blocksDestroyed;
@@ -274,21 +281,21 @@ namespace bomberman {
         void loadPlayerMovedEvent(player_id_t playerId) {
             ++events;
             Message::clearBuffer();
-            Message::getInstance() << (uint8_t) 2 << playerId << _newPlayerPosition[playerId];
+            Message::getInstance() << EventType::PlayerMoved << playerId << _newPlayerPosition[playerId];
             _events.push_back(Message::getBuffer());
         }
 
         void loadPlacedBlockEvent(const Position &position) {
             ++events;
             Message::clearBuffer();
-            Message::getInstance() << (uint8_t) 3 << position;
+            Message::getInstance() << EventType::BlockPlaced << position;
             _events.push_back(Message::getBuffer());
         }
 
         void loadBombPlacedEvent(Bomb &bomb) {
             ++events;
             Message::clearBuffer();
-            Message::getInstance() << (uint8_t) 0 << nextBombId << bomb.bombPosition;
+            Message::getInstance() << EventType::BombPlaced << nextBombId << bomb.bombPosition;
             _bombs[turn % _gameOptions.bombTimer].push_back({bomb, nextBombId});
             _events.push_back(Message::getBuffer());
 
@@ -325,9 +332,9 @@ namespace bomberman {
             _playerPositions.clear();
             _blocks.clear();
             _scores.clear();
-            _allAcceptedPlayers.clear();
-            _gameStarted.clear();
-            _allTurns.clear();
+            AllAcceptedPlayers.clear();
+            GameStarted.clear();
+            AllTurns.clear();
             _playerIds.clear();
             _session_to_player.clear();
             for (auto &bombBucket: _bombs)
@@ -338,7 +345,7 @@ namespace bomberman {
             turn = 0;
         }
 
-        GameOptions _gameOptions;
+        ServerOptions _gameOptions;
         bool _isRunning;
         players_t players;
         std::set<player_id_t> _playerIds;
@@ -362,10 +369,6 @@ namespace bomberman {
 
         std::unordered_set<player_id_t> _playersDestroyer;
         std::unordered_set<Position> _blocksDestroyed;
-    public:
-        std::vector<uint8_t> _gameStarted;
-        std::vector<uint8_t> _allAcceptedPlayers;
-        turn_message _allTurns;
     };
 }
 

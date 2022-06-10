@@ -34,7 +34,7 @@ namespace bomberman {
     public:
         Session(tcp::socket socket, std::shared_ptr<Game> game)
                 : _game(std::move(game)),
-                  socket_(std::move(socket)),
+                  _socket(std::move(socket)),
                   sessionId(nextId++) {
             _messages = std::make_unique<std::queue<std::vector<uint8_t>>>();
         }
@@ -43,7 +43,7 @@ namespace bomberman {
             using namespace boost::asio;
             auto self = shared_from_this();
             if (_messages->empty()) {
-                async_write(socket_, buffer(message),
+                async_write(_socket, buffer(message),
                             [this, self](boost::system::error_code ec, std::size_t) mutable {
                                 if (!ec && !_disconnect) {
                                     if (!_messages->empty()) {
@@ -83,15 +83,15 @@ namespace bomberman {
             using namespace boost::asio;
             auto self = shared_from_this();
 
-            sendMessage(_game->_gameStarted);
-            for (auto &turnFragment: _game->_allTurns)
+            sendMessage(_game->GameStarted);
+            for (auto &turnFragment: _game->AllTurns)
                 sendMessage(turnFragment);
         }
 
         void doSendAllAccepted() {
             using namespace boost::asio;
             auto self = shared_from_this();
-            sendMessage(_game->_allAcceptedPlayers);
+            sendMessage(_game->AllAcceptedPlayers);
         }
 
     private:
@@ -99,8 +99,8 @@ namespace bomberman {
             using namespace boost::asio;
 
             auto self(shared_from_this());
-            async_read(socket_,
-                       buffer(_buffer, 1),
+            async_read(_socket,
+                       buffer(_buffer, sizeof(message_header_t)),
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
                                uint8_t type = _buffer[0];
@@ -132,7 +132,7 @@ namespace bomberman {
             using namespace boost::asio;
 
             auto self(shared_from_this());
-            async_read(socket_,
+            async_read(_socket,
                        buffer(_buffer, sizeof(string_length_t)),
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
@@ -148,13 +148,13 @@ namespace bomberman {
             using namespace boost::asio;
 
             auto self(shared_from_this());
-            async_read(socket_,
+            async_read(_socket,
                        buffer(_buffer, stringLength),
                        [this, self](boost::system::error_code ec, std::size_t nameLength) {
                            if (!ec && !_disconnect) {
                                _buffer[nameLength] = '\0';
                                string name((char *) _buffer);
-                               auto address = boost::lexical_cast<std::string>(socket_.remote_endpoint());
+                               auto address = boost::lexical_cast<std::string>(_socket.remote_endpoint());
                                _game->joinPlayer(sessionId, name, address);
                                doReadHeader();
                            } else {
@@ -167,7 +167,7 @@ namespace bomberman {
             using namespace boost::asio;
 
             auto self(shared_from_this());
-            async_read(socket_,
+            async_read(_socket,
                        buffer(_buffer, 1),
                        [this, self](boost::system::error_code ec, std::size_t) {
                            if (!ec && !_disconnect) {
@@ -187,7 +187,7 @@ namespace bomberman {
 
     public:
         std::shared_ptr<Game> _game;
-        tcp::socket socket_;
+        tcp::socket _socket;
         static int nextId;
         int sessionId;
         bool _disconnect = false;

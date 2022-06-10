@@ -11,7 +11,7 @@
 #include "types.h"
 
 namespace bomberman {
-    struct GameOptions {
+    struct ServerOptions {
         std::string serverName;
         players_count_t playerCount;
         board_size_t sizeX;
@@ -34,7 +34,7 @@ namespace bomberman {
             explicit HelpException(const std::string &description) : invalid_argument(description) {}
         };
 
-        GameOptions(int argumentsCount, char *argumentsTable[]) {
+        ServerOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
             static const auto MAX_UINT8 = (uint8_t) -1;
             static const uint32_t defaultSeed = (uint32_t) std::chrono::system_clock::now().time_since_epoch().count();

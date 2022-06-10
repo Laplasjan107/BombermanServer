@@ -27,14 +27,14 @@ int main(int argc, char *argv[]) {
     using namespace std;
 
     try {
-        GameOptions options{argc, argv};
+        ServerOptions options{argc, argv};
         boost::asio::io_context io_context;
         shared_ptr<Server> server = make_shared<Server>(io_context, options);
         server->startGame();
 
         io_context.run();
     }
-    catch (GameOptions::HelpException &e) {
+    catch (ServerOptions::HelpException &e) {
         cout << helpMessage;
         return 0;
     }

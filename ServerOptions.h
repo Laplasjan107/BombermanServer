@@ -62,17 +62,29 @@ namespace bomberman {
                 throw;
 
             po::notify(programVariables);
+            std::cout << "timer \n";
             bombTimer = programVariables["bomb-timer"].as<bomb_timer_t>();
+            std::cout << "player c\n";
             playerCount = programVariables["players-count"].as<players_count_t>();
+            std::cout << "turn d\n";
             turnDuration = programVariables["turn-duration"].as<uint64_t>();
+            std::cout << "exp r\n";
             explosionRadius = programVariables["explosion-radius"].as<board_size_t>();
+            std::cout << "initial b\n";
             initialBlocks = programVariables["initial-blocks"].as<uint16_t>();
+            std::cout << "game l\n";
             gameLength = programVariables["turn-duration"].as<game_length_t>();
+            std::cout << "ser n\n";
             serverName = programVariables["server-name"].as<std::string>();
+            std::cout << "por \n";
             port = programVariables["port"].as<uint16_t>();
+            std::cout << "see\n";
             seed = programVariables["seed"].as<uint32_t>();
+            std::cout << "x\n";
             sizeX = programVariables["size-x"].as<board_size_t>();
+            std::cout << "y\n";
             sizeY = programVariables["size-y"].as<board_size_t>();
+            std::cout << "done\n";
         }
     };
 }

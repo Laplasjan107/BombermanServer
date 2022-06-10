@@ -24,19 +24,6 @@ namespace bomberman {
         uint64_t turnDuration;
         uint16_t initialBlocks;
 
-        GameOptions() {
-            serverName = "to_jest_serwer";
-            playerCount = 2;
-            sizeX = 15;
-            sizeY = 15;
-            gameLength = 500;
-            explosionRadius = 3;
-            bombTimer = 4;
-            turnTimer = 200;
-            port = 12345;
-            seed = 3456;
-        }
-
         GameOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
             static const auto MAX_UINT8 = (uint8_t) -1;

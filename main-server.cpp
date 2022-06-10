@@ -243,15 +243,15 @@ namespace bomberman {
 
         Server(boost::asio::io_context &io_context, GameOptions options) :
                 acceptor_(io_context, tcp::endpoint(tcp::v6(), options.port)),
-                _turnTimer(options.turnTimer),
-                _timer(io_context, boost::posix_time::milliseconds(options.turnTimer)),
+                _turnTimer(options.turnDuration),
+                _timer(io_context, boost::posix_time::milliseconds(options.turnDuration)),
                 _options(options) {}
-
+/*
         Server(boost::asio::io_context &io_context, short port, const std::shared_ptr<Game> &game)
                 : acceptor_(io_context, tcp::endpoint(tcp::v6(), port)),
-                  _turnTimer(game->_gameOptions.turnTimer),
-                  _timer(io_context, boost::posix_time::milliseconds(game->_gameOptions.turnTimer)),
-                  _game(game) {}
+                  _turnTimer(game->_gameOptions.turnDuration),
+                  _timer(io_context, boost::posix_time::milliseconds(game->_gameOptions.turnDuration)),
+                  _game(game) {} */
 
         void startGame() {
             _game = std::make_shared<Game>(_options, shared_from_this());

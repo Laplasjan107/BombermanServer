@@ -137,7 +137,7 @@ namespace bomberman {
 
 
         void placeBomb(int sessionId) {
-            if (isRunning()) {
+            if (isRunning() && _session_to_player.contains(sessionId)) {
                 player_id_t playerId = _session_to_player[sessionId];
                 clearLastMove(playerId);
                 _newBomb[playerId] = Bomb(_playerPositions[playerId], _gameOptions.bombTimer);
@@ -145,7 +145,7 @@ namespace bomberman {
         }
 
         void placeBlock(int sessionId) {
-            if (isRunning()) {
+            if (isRunning() && _session_to_player.contains(sessionId)) {
                 player_id_t playerId = _session_to_player[sessionId];
                 clearLastMove(playerId);
                 _newBlock[playerId] = _playerPositions[playerId];
@@ -153,7 +153,7 @@ namespace bomberman {
         }
 
         void movePlayer(int sessionId, uint8_t direction) {
-            if (isRunning()) {
+            if (isRunning() && _session_to_player.contains(sessionId)) {
                 player_id_t playerId = _session_to_player[sessionId];
                 clearLastMove(playerId);
                 Position newPosition = _playerPositions[playerId] + versors[direction];

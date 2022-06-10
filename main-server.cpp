@@ -5,13 +5,9 @@
 #include <boost/asio.hpp>
 #include <unordered_set>
 #include <set>
-#include <map>
 #include <queue>
 #include "types.h"
-#include "Player.h"
-#include "messages/client-gui/UDPMessage.h"
 #include "messages/server-client/ClientMessageType.h"
-#include "Bomb.h"
 
 #include "IServer.h"
 #include "ServerOptions.h"
@@ -165,12 +161,7 @@ namespace bomberman {
                            if (!ec && !_disconnect) {
                                _buffer[nameLength] = '\0';
                                string name((char *) _buffer);
-                               string address = boost::lexical_cast<std::string>(socket_.remote_endpoint());
-    //                           string address = socket_.remote_endpoint().address().to_string();
-  //                             if (socket_.remote_endpoint().address().is_v6()) {
-//                                   address = "[" + address + "]";
-                               //}
-                               //address = address + ":" + std::to_string(socket_.remote_endpoint().port());
+                               auto address = boost::lexical_cast<std::string>(socket_.remote_endpoint());
                                _game->joinPlayer(sessionId, name, address);
                                doReadHeader();
                            } else {
@@ -213,7 +204,7 @@ namespace bomberman {
         bool _disconnect = false;
 
         static const constexpr size_t _bufferSize = 128;
-        uint8_t _buffer[_bufferSize];
+        uint8_t _buffer[_bufferSize]{};
     };
 
     int Session::nextId = 0;
@@ -242,11 +233,11 @@ namespace bomberman {
         }
 
 
-        Server(boost::asio::io_context &io_context, GameOptions options) :
-                acceptor_(io_context, tcp::endpoint(tcp::v6(), options.port)),
-                _turnTimer(options.turnDuration),
+        Server(boost::asio::io_context &io_context, const GameOptions& options) :
                 _timer(io_context, boost::posix_time::milliseconds(options.turnDuration)),
-                _options(options) {}
+                _options(options),
+                acceptor_(io_context, tcp::endpoint(tcp::v6(), options.port)),
+                _turnTimer(options.turnDuration) {}
 
         void startGame() {
             _game = std::make_shared<Game>(_options, shared_from_this());
@@ -314,7 +305,6 @@ namespace bomberman {
 
 int main(int argc, char *argv[]) {
     using namespace bomberman;
-    std::cerr << "start server";
 
     try {
         GameOptions options {argc, argv};
@@ -325,8 +315,7 @@ int main(int argc, char *argv[]) {
         io_context.run();
     }
     catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << "\n";
+        std::cerr << "Server stopped: " << e.what() << "\n";
+        return 1;
     }
-
-    return 0;
 }

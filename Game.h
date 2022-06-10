@@ -82,7 +82,9 @@ namespace bomberman {
             std::cerr << "[debug] Got join player, id" << (int) sessionId << " name "
                       << playerName << " address " << address << '\n';
 
-
+            std::cerr << isRunning() << std::endl;
+            std::cerr << _session_to_player.contains(sessionId) << std::endl;
+            std::cerr << _session_to_player.size() << std::endl;
             if (!isRunning() && !_session_to_player.contains(sessionId)) {
                 _session_to_player[sessionId] = (uint8_t) _session_to_player.size();
                 player_id_t playerId = _session_to_player[sessionId];
@@ -336,6 +338,7 @@ namespace bomberman {
         }
 
         void endGame() {
+            std::cerr << "END GAME\n";
             UDPMessage::clearBuffer();
             UDPMessage::getInstance() << (uint8_t) 4 << _scores;
             _server->sendToAll(UDPMessage::getBuffer());

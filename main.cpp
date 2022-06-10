@@ -10,7 +10,7 @@ static const constexpr char helpMessage[] = "This is Bomberman game client.\n"
                      "    -d, --display-address (Required)\n"
                      "    -n, --player-name (Required)\n"
                      "    -p, --port (Required)\n"
-                     "    -s, --server-address (Required)";
+                     "    -s, --server-address (Required)\n";
 
 
 int main(int argc, char *argv[]) {

@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include "types.h"
-//#include <boost/program_options.hpp>
+#include <boost/program_options.hpp>
 
 namespace bomberman {
     struct ClientOptions {
@@ -30,8 +30,7 @@ namespace bomberman {
             }
         };
 
-        ClientOptions([[maybe_unused]]int argumentsCount, [[maybe_unused]] char *argumentsTable[]) {
-            /*
+        ClientOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
 
             po::options_description description("Options parser");
@@ -53,12 +52,6 @@ namespace bomberman {
             serverAddress = programVariables["server-address"].as<std::string>();
             playerName = programVariables["player-name"].as<std::string>();
             port = programVariables["port"].as<uint16_t>();
-            */
-            serverAddress = "students.mimuw.edu.pl:12345";
-            //serverAddress = "students.mimuw.edu.pl:20002";
-            displayAddress = "localhost:14008";
-            port = 54321;
-            playerName = "rakrht";
 
             auto slicedServer = sliceAddress(serverAddress);
             auto slicedDisplay = sliceAddress(displayAddress);

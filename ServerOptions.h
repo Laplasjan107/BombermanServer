@@ -18,15 +18,23 @@ namespace bomberman {
         game_length_t gameLength;
         explosion_radius_t explosionRadius;
         bomb_timer_t bombTimer;
-        uint64_t turnTimer;
         uint16_t port;
         uint32_t seed;
         uint64_t turnDuration;
         uint16_t initialBlocks;
 
+        class HelpException : public std::invalid_argument {
+            explicit HelpException(const std::string &description) : invalid_argument(description) {}
+
+            [[nodiscard]] const char *what() const noexcept override {
+                    return "Help message requested";
+            }
+        };
+
         GameOptions(int argumentsCount, char *argumentsTable[]) {
             namespace po = boost::program_options;
             static const auto MAX_UINT8 = (uint8_t) -1;
+            static const uint32_t defaultSeed = 1997;
 
             po::options_description description("Options parser");
             description.add_options()
@@ -40,7 +48,8 @@ namespace bomberman {
                     ("game-length,l", po::value<game_length_t>()->required(), "Number of turns in game")
                     ("server-name,n", po::value<std::string>()->required(), "Server name")
                     ("port,p", po::value<uint16_t>()->required(), "Port, on which the server listens")
-                    ("seed,s", po::value<uint32_t>()->default_value(1997), "Seed for the random numbers generator")
+                    ("seed,s", po::value<uint32_t>()->default_value(defaultSeed),
+                            "Seed for the random numbers generator")
                     ("size-x,x", po::value<board_size_t>()->required(), "Horizontal length of the board")
                     ("size-y,y", po::value<board_size_t>()->required(), "Vertical length of the board");
 
@@ -51,32 +60,20 @@ namespace bomberman {
                 throw;
 
             po::notify(programVariables);
-            std::cout << "timer \n";
             bombTimer = programVariables["bomb-timer"].as<bomb_timer_t>();
-            std::cout << "player c\n";
             uint32_t tmpPlayerCount = programVariables["players-count"].as<uint32_t>();
             if (tmpPlayerCount > MAX_UINT8)
                 throw std::invalid_argument("Player count is over its maximum");
             playerCount = (players_count_t) programVariables["players-count"].as<uint32_t>();
-            std::cout << "turn d\n";
             turnDuration = programVariables["turn-duration"].as<uint64_t>();
-            std::cout << "exp r\n";
             explosionRadius = programVariables["explosion-radius"].as<board_size_t>();
-            std::cout << "initial b\n";
             initialBlocks = programVariables["initial-blocks"].as<uint16_t>();
-            std::cout << "game l\n";
             gameLength = programVariables["game-length"].as<game_length_t>();
-            std::cout << "ser n\n";
             serverName = programVariables["server-name"].as<std::string>();
-            std::cout << "por \n";
             port = programVariables["port"].as<uint16_t>();
-            std::cout << "see\n";
             seed = programVariables["seed"].as<uint32_t>();
-            std::cout << "x\n";
             sizeX = programVariables["size-x"].as<board_size_t>();
-            std::cout << "y\n";
             sizeY = programVariables["size-y"].as<board_size_t>();
-            std::cout << "done\n";
         }
     };
 }
